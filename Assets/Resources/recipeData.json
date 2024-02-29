@@ -1,0 +1,18 @@
+{
+    "recipeDataArray": [
+        {
+            "ingredients": [0, 1, 7],
+            "time": 2,
+            "drops": [2, 3, 4, 5, 6],
+            "chance": [3, 3, 3, 3, 2],
+            "recipeStage": 0
+        },
+        {
+            "ingredients": [2, 3, 7],
+            "time": 5,
+            "drops": [8],
+            "chance": [1],
+            "recipeStage": 0
+        }
+    ]
+}

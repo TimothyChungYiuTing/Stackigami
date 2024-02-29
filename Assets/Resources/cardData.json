@@ -1,0 +1,112 @@
+{
+    "cardDataArray": [
+        {
+            "id": 0,
+            "name": "CharmPaper",
+            "type": 0,
+            "sellPrice": 0,
+            "sellEffect": 0,
+            "attack": 0,
+            "attackCD": 1,
+            "health": 0,
+            "attr": 0,
+            "drops": [1, 2, 3, 4, 5]
+        },
+        {
+            "id": 1,
+            "name": "Essence",
+            "type": 1,
+            "sellPrice": 0,
+            "sellEffect": 0,
+            "attack": 0,
+            "attackCD": 1,
+            "health": 0,
+            "attr": 0,
+            "drops": []
+        },
+        {
+            "id": 2,
+            "name": "Chi",
+            "type": 0,
+            "sellPrice": 0,
+            "sellEffect": 0,
+            "attack": 0,
+            "attackCD": 1,
+            "health": 0,
+            "attr": 0,
+            "drops": []
+        },
+        {
+            "id": 3,
+            "name": "Sui",
+            "type": 0,
+            "sellPrice": 0,
+            "sellEffect": 0,
+            "attack": 0,
+            "attackCD": 1,
+            "health": 0,
+            "attr": 0,
+            "drops": []
+        },
+        {
+            "id": 4,
+            "name": "Ka",
+            "type": 0,
+            "sellPrice": 0,
+            "sellEffect": 0,
+            "attack": 0,
+            "attackCD": 1,
+            "health": 0,
+            "attr": 0,
+            "drops": []
+        },
+        {
+            "id": 5,
+            "name": "Fu",
+            "type": 0,
+            "sellPrice": 0,
+            "sellEffect": 0,
+            "attack": 0,
+            "attackCD": 1,
+            "health": 0,
+            "attr": 0,
+            "drops": []
+        },
+        {
+            "id": 6,
+            "name": "Ku",
+            "type": 0,
+            "sellPrice": 0,
+            "sellEffect": 0,
+            "attack": 0,
+            "attackCD": 1,
+            "health": 0,
+            "attr": 0,
+            "drops": []
+        },
+        {
+            "id": 7,
+            "name": "Original",
+            "type": 1,
+            "sellPrice": 0,
+            "sellEffect": -1,
+            "attack": 2,
+            "attackCD": 1,
+            "health": 10,
+            "attr": 4,
+            "drops": []
+        },
+        {
+            "id": 8,
+            "name": "Courage",
+            "type": 0,
+            "sellPrice": 0,
+            "sellEffect": 0,
+            "attack": 0,
+            "attackCD": 0,
+            "health": 0,
+            "attr": 0,
+            "drops": []
+        }
+    ]
+}
