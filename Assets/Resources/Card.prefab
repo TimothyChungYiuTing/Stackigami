@@ -1046,7 +1046,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 0
   isHost: 1
-  cardDataManager: {fileID: 0}
+  boardManager: {fileID: 0}
   prevCard: {fileID: 0}
   stackedCards: []
   combiningRecipe:
@@ -1058,6 +1058,7 @@ MonoBehaviour:
     protect: 
   isDragging: 0
   ListOfOverlapped: []
+  ListOfOverlappedFrame: []
   ProgressBG: {fileID: 2607175322411308710}
   CardBG: {fileID: 2041574607575490658}
   CardOuterFrame: {fileID: 7377008753273441982}
@@ -1068,6 +1069,7 @@ MonoBehaviour:
   Text_Price: {fileID: 5580888551180019559}
   Text_Health: {fileID: 1578034229388871301}
   CardPrefab: {fileID: 7629507956167564247}
+  GemMoney: {fileID: 8344287986711787071, guid: 188f6a61a8652fa4ba5c08a8116625dd, type: 3}
 --- !u!61 &8841105912346891719
 BoxCollider2D:
   m_ObjectHideFlags: 0

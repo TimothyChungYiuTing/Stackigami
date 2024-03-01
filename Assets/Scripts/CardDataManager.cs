@@ -98,6 +98,10 @@ public class CardDataManager : MonoBehaviour
     {
         cardDatas = JsonUtility.FromJson<CardDatas>(cardDataJSON.text);
         recipeDatas = JsonUtility.FromJson<RecipeDatas>(recipeDataJSON.text);
+        
+        for (int i=0; i < recipeDatas.recipeDataArray.Length; i++) {
+            recipeDatas.recipeDataArray[i].ingredients.Sort();
+        }
     }
 
     // Update is called once per frame

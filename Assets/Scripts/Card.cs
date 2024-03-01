@@ -11,7 +11,8 @@ public class Card : MonoBehaviour
     public int id = 0;
     public bool isHost = true;
     public CardInfo cardInfo;
-    public CardDataManager cardDataManager;
+    private CardDataManager cardDataManager;
+    public BoardManager boardManager;
     public Card prevCard = null;
     public List<Card> stackedCards = new();
 
@@ -40,6 +41,7 @@ public class Card : MonoBehaviour
 
     [Header("Instantiated")]
     public GameObject CardPrefab;
+    public GameObject GemMoney;
 
     // Start is called before the first frame update    
     void Start()
@@ -51,6 +53,7 @@ public class Card : MonoBehaviour
 
         combiningRecipe = null;
         cardDataManager = FindObjectOfType<CardDataManager>();
+        boardManager = FindObjectOfType<BoardManager>();
         cardInfo = new CardInfo(id, cardDataManager.cardDatas.cardDataArray);
 
         if (cardInfo.currentHealth == 0) {
@@ -222,7 +225,7 @@ public class Card : MonoBehaviour
         int i = 0;
         foreach(Card stackedCard in stackedCards) {
             i++;
-            stackedCard.transform.position = transform.position + Vector3.right * 0.4f * i - Vector3.up * 0.7f * i + Vector3.back * 0.002f * i;
+            stackedCard.transform.position = transform.position + Vector3.right * 0.4f * i - Vector3.up * 0.7f * i + Vector3.back * 0.004f * i;
         }
     }
 
@@ -231,7 +234,35 @@ public class Card : MonoBehaviour
         if (ListOfOverlappedFrame.Count > 0) {
             //Sell Or Buy
             if (ListOfOverlappedFrame[0].GetComponent<InteractableFrame>().interactMode == InteractMode.Sell) {
-                
+                int sumOfSold = 0;
+                List<Card> ToBeSoldList = new();
+
+                if (cardInfo.sellEffect != -1) {
+                    sumOfSold += cardInfo.sellPrice;
+                }
+
+                foreach(Card stackedCard in stackedCards) {
+                    if (stackedCard.cardInfo.sellEffect != -1) {
+                        sumOfSold += stackedCard.cardInfo.sellPrice;
+                        ToBeSoldList.Add(stackedCard);
+                    }
+                }
+
+                //boardManager.gem.Text_Amount.text = (int.Parse(boardManager.gem.Text_Amount.text) + sumOfSold).ToString();
+                foreach(Card stackedCard in stackedCards) {
+                    stackedCard.ResetCard();
+                }
+                ResetCard();
+
+                foreach(Card ToBeSold in ToBeSoldList) {
+                    InstantiateMoney(ToBeSold);
+                    Destroy(ToBeSold.gameObject);
+                }
+
+                if (cardInfo.sellEffect != -1) {
+                    InstantiateMoney(this);
+                    Destroy(gameObject);
+                }
             }
             return false;
         }
@@ -269,6 +300,13 @@ public class Card : MonoBehaviour
         if (prevCard != null)
             return true;
         return false;
+    }
+
+    private void InstantiateMoney(Card toBeSold)
+    {
+        for (int i=0; i<toBeSold.cardInfo.sellPrice; i++) {
+            Instantiate(GemMoney, toBeSold.transform.position + Random.Range(-0.1f, 0.1f) * Vector3.up + Random.Range(-0.1f, 0.1f) * Vector3.right, Quaternion.identity);
+        }
     }
 
     public void RecursivelyRemoveFromStack(Card removedCard)
