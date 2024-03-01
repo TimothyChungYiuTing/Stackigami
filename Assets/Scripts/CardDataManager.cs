@@ -11,7 +11,6 @@ public class CardInfo {
     public int sellEffect;
     public GameObject cardObj;
     public int currentHealth;
-    public bool isHost = true;
     public int attack = 0;
     public int attackCD = 1;
     public int attr = 0;
@@ -26,7 +25,6 @@ public class CardInfo {
         sellPrice = cardDataArray[id].sellPrice;
         sellEffect = cardDataArray[id].sellEffect;
         currentHealth = cardDataArray[id].health;
-        isHost = true;
         attack = cardDataArray[id].attack;
         attackCD = cardDataArray[id].attackCD;
         attr = cardDataArray[id].attr;
@@ -53,7 +51,7 @@ public class CardDataManager : MonoBehaviour
         public int attr = 0; // Chi, Sui, Ka, Fu, Ku
         public List<int> drops = new(); // Drops after death
     }
-    
+
     [System.Serializable]
     public class CardDatas
     {
