@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Unity.VisualScripting;
+using UnityEngine.UIElements;
+using TMPro;
 
 public class Card : MonoBehaviour
 {
@@ -20,24 +22,72 @@ public class Card : MonoBehaviour
     private Rigidbody2D rb;
 
     public List<GameObject> ListOfOverlapped = new();
+    public List<GameObject> ListOfOverlappedFrame = new();
 
     private Vector3 dragStartPos;
     private Vector3 dragStartMousePos;
 
+    [Header("Stats/Progress")]
+    public GameObject ProgressBG;
+    public SpriteRenderer CardBG;
+    public SpriteRenderer CardOuterFrame;
+    public SpriteRenderer CardFrame;
+    public SpriteRenderer HealthTag;
+    public SpriteRenderer PriceTag;
+    public TextMeshPro Text_Name;
+    public TextMeshPro Text_Price;
+    public TextMeshPro Text_Health;
+
+    [Header("Instantiated")]
+    public GameObject CardPrefab;
+
     // Start is called before the first frame update    
     void Start()
     {
+        if (id == 37) {
+            Destroy(gameObject);
+            //ToDo: Open Portal
+        }
+
+        combiningRecipe = null;
         cardDataManager = FindObjectOfType<CardDataManager>();
         cardInfo = new CardInfo(id, cardDataManager.cardDatas.cardDataArray);
+
+        if (cardInfo.currentHealth == 0) {
+            Text_Health.text = "";
+            HealthTag.enabled = false;
+        } else {
+            Text_Health.text = cardInfo.currentHealth.ToString();
+        }
+        Text_Name.text = cardInfo.name;
+        Text_Price.text = cardInfo.sellPrice.ToString();
+
         rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<BoxCollider2D>();
+
+        ResetCard();
+
+        Debug.LogError(stackedCards.Count);
+    }
+
+    public void ResetCard()
+    {
+        isHost = true;
+        prevCard = null;
+        stackedCards.Clear();
+        combiningRecipe = null;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (isHost && combiningRecipe == null && RecipeExists(id, stackedCards, cardDataManager.recipeDatas.recipeDataArray)) {
-            //TODO: Start Combining
+        if (isHost && combiningRecipe == null) {
+            Debug.Log("CombiningRecipe is null");
+            if (RecipeExists(id, stackedCards, cardDataManager.recipeDatas.recipeDataArray)) {
+                //TODO: Start Combining
+                ProgressBG.SetActive(true);
+                StartCoroutine(Craft(combiningRecipe));
+            }
         }
 
         //Reset Collider size and position to prevent hitting own stack
@@ -54,8 +104,62 @@ public class Card : MonoBehaviour
             RestackPosition();
         }
     }
+
+    private IEnumerator Craft(CardDataManager.RecipeData recipe)
+    {
+        float timer = 0;
+        Vector3 fromPos = new Vector3(-0.45f, 0f, -0.1f);
+        Vector3 toPos = new Vector3(0f, 0f, -0.1f);
+        Vector3 fromScale = new Vector3(0.01f, 0.8f, 1f);
+        Vector3 toScale = new Vector3(0.95f, 0.8f, 0.1f);
+
+        Transform ProgressBarTransform = ProgressBG.transform.GetChild(0);
+        while(timer < recipe.time) {
+            ProgressBarTransform.localPosition = Vector3.Lerp(fromPos, toPos, timer/recipe.time);
+            ProgressBarTransform.localScale = Vector3.Lerp(fromScale, toScale, timer/recipe.time);
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        ProgressBG.SetActive(false);
+        combiningRecipe = null;
+
+        CreateCard(recipe.GetRandomResultID());
+        foreach (Card card in stackedCards) {
+            if (recipe.protect.Contains(card.id)) {
+                card.ResetCard();
+            }
+            else {
+                Destroy(card.gameObject);
+            }
+        }
+
+        if (recipe.protect.Contains(id)) {
+            ResetCard();
+        }
+        else {
+            Destroy(gameObject);
+        }
+    }
+
+    private void ResetCombiningState()
+    {
+        StopAllCoroutines();
+        ProgressBG.SetActive(false);
+        combiningRecipe = null;
+    }
+
+    private void CreateCard(int cardID)
+    {
+        //TODO: Instantiate card and change ID
+        GameObject NewCard = Instantiate(CardPrefab, stackedCards[^1].transform.position + Vector3.down * 0.1f, Quaternion.identity);
+        NewCard.GetComponent<Card>().id = cardID;
+    }
+
     private void OnMouseDown()
     {
+        transform.position += Vector3.up * 0.15f;
         dragStartPos = transform.position;
         dragStartMousePos = GetMousePos();
     }
@@ -64,9 +168,12 @@ public class Card : MonoBehaviour
     {
         if (!isHost) {
             isHost = true;
-            //TODO: Recursively remove previous cards' partial stackedCards
-            prevCard.RecursivelyRemoveFromStack(this);
 
+            GetHost().ResetCombiningState();
+            
+            //Recursively remove previous cards' partial stackedCards
+
+            prevCard.RecursivelyRemoveFromStack(this);
             prevCard = null;
         }
         
@@ -121,6 +228,14 @@ public class Card : MonoBehaviour
 
     private bool StackToClosestCollided()
     {
+        if (ListOfOverlappedFrame.Count > 0) {
+            //Sell Or Buy
+            if (ListOfOverlappedFrame[0].GetComponent<InteractableFrame>().interactMode == InteractMode.Sell) {
+                
+            }
+            return false;
+        }
+
         float distance = 9999f;
         Card closestCard = null;
 
@@ -144,9 +259,12 @@ public class Card : MonoBehaviour
 
             //Assign new stacks to each card
             prevCard.RecursivelyAddToStack(this);
+
+            Debug.LogError("ASDASDAD");
         }
 
         ListOfOverlapped.Clear();
+        ListOfOverlappedFrame.Clear();
 
         if (prevCard != null)
             return true;
@@ -219,6 +337,9 @@ public class Card : MonoBehaviour
                 //Debug.LogError("Overlapping Card!");
                 ListOfOverlapped.Add(other.gameObject);
             }
+            if (other.gameObject.layer == LayerMask.NameToLayer("InteractableFrame")) {
+                ListOfOverlappedFrame.Add(other.gameObject);
+            }
         }
     }
 
@@ -227,6 +348,8 @@ public class Card : MonoBehaviour
         if (other.transform.GetComponent<Card>() != null) {
             ListOfOverlapped.Remove(other.gameObject);
         }
-
+        if (other.gameObject.layer == LayerMask.NameToLayer("InteractableFrame")) {
+            ListOfOverlappedFrame.Remove(other.gameObject);
+        }
     }
 }

@@ -1,18 +1,220 @@
 {
     "recipeDataArray": [
         {
-            "ingredients": [0, 1, 7],
+            "ingredients": [0, 7],
             "time": 2,
             "drops": [2, 3, 4, 5, 6],
             "chance": [3, 3, 3, 3, 2],
-            "recipeStage": 0
+            "recipeStage": 0,
+            "protect": [7]
         },
         {
-            "ingredients": [2, 3, 7],
-            "time": 5,
+            "ingredients": [17, 18, 7],
+            "time": 10,
+            "drops": [7],
+            "chance": [1],
+            "recipeStage": 0,
+            "protect": [7]
+        },
+        {
+            "ingredients": [2, 4, 7],
+            "time": 4,
             "drops": [8],
             "chance": [1],
-            "recipeStage": 0
+            "recipeStage": 0,
+            "protect": [7]
+        },
+        {
+            "ingredients": [4, 5, 7],
+            "time": 4,
+            "drops": [9],
+            "chance": [1],
+            "recipeStage": 0,
+            "protect": [7]
+        },
+        {
+            "ingredients": [2, 5, 7],
+            "time": 4,
+            "drops": [10],
+            "chance": [1],
+            "recipeStage": 0,
+            "protect": [7]
+        },
+        {
+            "ingredients": [3, 6, 7],
+            "time": 6,
+            "drops": [11],
+            "chance": [1],
+            "recipeStage": 0,
+            "protect": [7]
+        },
+        {
+            "ingredients": [4, 10, 7],
+            "time": 6,
+            "drops": [12],
+            "chance": [1],
+            "recipeStage": 0,
+            "protect": [7]
+        },
+        {
+            "ingredients": [3, 11, 7],
+            "time": 6,
+            "drops": [13],
+            "chance": [1],
+            "recipeStage": 0,
+            "protect": [7]
+        },
+        {
+            "ingredients": [6, 6, 7],
+            "time": 10,
+            "drops": [14],
+            "chance": [1],
+            "recipeStage": 0,
+            "protect": [7]
+        },
+        {
+            "ingredients": [12, 14, 7],
+            "time": 10,
+            "drops": [15],
+            "chance": [1],
+            "recipeStage": 0,
+            "protect": [7]
+        },
+        {
+            "ingredients": [2, 2, 7],
+            "time": 16,
+            "drops": [17],
+            "chance": [1],
+            "recipeStage": 0,
+            "protect": [7]
+        },
+        {
+            "ingredients": [16, 12, 14, 7],
+            "time": 12,
+            "drops": [18],
+            "chance": [1],
+            "recipeStage": 0,
+            "protect": [7]
+        },
+        {
+            "ingredients": [17, 9, 7],
+            "time": 10,
+            "drops": [19],
+            "chance": [1],
+            "recipeStage": 0,
+            "protect": [7]
+        },
+        {
+            "ingredients": [11, 13, 7, 18],
+            "time": 12,
+            "drops": [20],
+            "chance": [1],
+            "recipeStage": 1,
+            "protect": [7, 18]
+        },
+        {
+            "ingredients": [17, 20, 7],
+            "time": 8,
+            "drops": [21],
+            "chance": [1],
+            "recipeStage": 1,
+            "protect": [7]
+        },
+        {
+            "ingredients": [6, 13, 7, 18],
+            "time": 12,
+            "drops": [22],
+            "chance": [1],
+            "recipeStage": 1,
+            "protect": [7, 18]
+        },
+        {
+            "ingredients": [16, 11, 7, 18],
+            "time": 18,
+            "drops": [23],
+            "chance": [1],
+            "recipeStage": 1,
+            "protect": [7, 18]
+        },
+        {
+            "ingredients": [24, 8, 7],
+            "time": 7,
+            "drops": [25],
+            "chance": [1],
+            "recipeStage": 1,
+            "protect": [7]
+        },
+        {
+            "ingredients": [2, 13, 7],
+            "time": 7,
+            "drops": [26],
+            "chance": [1],
+            "recipeStage": 1,
+            "protect": [7]
+        },
+        {
+            "ingredients": [6, 11, 7, 18],
+            "time": 15,
+            "drops": [27],
+            "chance": [1],
+            "recipeStage": 1,
+            "protect": [7, 18]
+        },
+        {
+            "ingredients": [22, 24, 27, 7, 18],
+            "time": 20,
+            "drops": [28],
+            "chance": [1],
+            "recipeStage": 1,
+            "protect": [7, 18]
+        },
+        {
+            "ingredients": [28, 7],
+            "time": 5,
+            "drops": [37],
+            "chance": [1],
+            "recipeStage": 1,
+            "protect": [7]
+        },
+        {
+            "ingredients": [17, 30, 7],
+            "time": 16,
+            "drops": [31],
+            "chance": [1],
+            "recipeStage": 2,
+            "protect": [7]
+        },
+        {
+            "ingredients": [17, 29, 2, 7],
+            "time": 15,
+            "drops": [32],
+            "chance": [1],
+            "recipeStage": 2,
+            "protect": [7]
+        },
+        {
+            "ingredients": [33, 11, 7],
+            "time": 8,
+            "drops": [34],
+            "chance": [1],
+            "recipeStage": 2,
+            "protect": [7]
+        },
+        {
+            "ingredients": [17, 27, 29, 7],
+            "time": 22,
+            "drops": [35],
+            "chance": [1],
+            "recipeStage": 2,
+            "protect": [7]
+        },
+        {
+            "ingredients": [16, 24, 29, 32, 7, 18],
+            "time": 30,
+            "drops": [36],
+            "chance": [1],
+            "recipeStage": 2,
+            "protect": [7, 18]
         }
     ]
 }

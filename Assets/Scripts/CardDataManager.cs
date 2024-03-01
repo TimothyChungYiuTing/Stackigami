@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System;
+using System.Linq;
 
 public class CardInfo {
     public int id;
@@ -42,7 +44,7 @@ public class CardDataManager : MonoBehaviour
     public class CardData {
         public int id = 0;
         public string name;
-        public int type = 0; // 0 is Charm Paper, 1 is character, 2 is enemy, 3 is artifact, 4 is technology, 5 is rift
+        public int type = 0; // 0 is Charm Paper, 1 is character, 2 is enemy, 3 is spell, 4 is aura, 5 is riftgate, 6 is portal
         public int sellPrice = 0;
         public int sellEffect = 0; // -1 is not-sellable, 0 is no effect, 1 is spawn random enemy effect
         public int attack = 0;
@@ -68,6 +70,22 @@ public class CardDataManager : MonoBehaviour
         public List<int> drops = new(); // List of possible outcomes
         public List<int> chance = new(); // List of chances (x0.8, because 20% is new recipe discovery)
         public int recipeStage = 0; // Which level can this recipe be found at?
+        public List<int> protect = new(); // Which cards would remain after recipe finishes?
+
+        public int GetRandomResultID()
+        {
+            int randID = UnityEngine.Random.Range(0, chance.Sum());
+            int sumOfChances = 0;
+            int randIDLargerThanDropID = -1;
+            for (int i=0; i < chance.Count(); i++) {
+                sumOfChances += chance[i];
+                if (sumOfChances < randID) {
+                    randIDLargerThanDropID = i;
+                }
+            }
+            randIDLargerThanDropID++;
+            return drops[randIDLargerThanDropID];
+        }
     }
 
     [System.Serializable]
