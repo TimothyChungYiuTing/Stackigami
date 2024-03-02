@@ -17,6 +17,9 @@ public class InGameCanvas : MonoBehaviour
     private Vector3 BoxClose;
 
     public float animTimeLength;
+
+    public RectTransform recipeContent;
+    public List<RectTransform> Recipes;
     
     // Start is called before the first frame update
     void Start()

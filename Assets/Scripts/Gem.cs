@@ -59,14 +59,12 @@ public class Gem : MonoBehaviour
                 if (int.Parse(Text_Amount.text) >= 3) {
                     Text_Amount.text = (int.Parse(Text_Amount.text) - 3).ToString();
                     incantFrame.OpenPack();
-                    incantFrame = null;
                 }
             }
             else if (inspirationFrame != null) {
                 if (int.Parse(Text_Amount.text) >= 5) {
                     Text_Amount.text = (int.Parse(Text_Amount.text) - 5).ToString();
                     inspirationFrame.OpenPack();
-                    inspirationFrame = null;
                 }
             }
         }
@@ -81,15 +79,13 @@ public class Gem : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (isDragging) {
-            if (other.gameObject.layer == LayerMask.NameToLayer("InteractableFrame")) {
-                InteractableFrame IF = other.GetComponent<InteractableFrame>();
-                if (IF.interactMode == InteractMode.Incant) {
-                    incantFrame = IF;
-                }
-                if (IF.interactMode == InteractMode.Inspiration) {
-                    inspirationFrame = IF;
-                }
+        if (other.gameObject.layer == LayerMask.NameToLayer("InteractableFrame")) {
+            InteractableFrame IF = other.GetComponent<InteractableFrame>();
+            if (IF.interactMode == InteractMode.Incant) {
+                incantFrame = IF;
+            }
+            if (IF.interactMode == InteractMode.Inspiration) {
+                inspirationFrame = IF;
             }
         }
     }

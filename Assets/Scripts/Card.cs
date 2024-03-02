@@ -18,6 +18,8 @@ public class Card : MonoBehaviour
 
     public CardDataManager.RecipeData combiningRecipe = null;
     
+    public bool stackable = true;
+    public bool draggable = true;
     public bool isDragging = false;
     private BoxCollider2D coll;
     private Rigidbody2D rb;
@@ -27,6 +29,7 @@ public class Card : MonoBehaviour
 
     private Vector3 dragStartPos;
     private Vector3 dragStartMousePos;
+    private float lastTimeHealed = 0f;
 
     [Header("Stats/Progress")]
     public GameObject ProgressBG;
@@ -38,10 +41,14 @@ public class Card : MonoBehaviour
     public TextMeshPro Text_Name;
     public TextMeshPro Text_Price;
     public TextMeshPro Text_Health;
+    public SpriteRenderer ContentSpriteRenderer;
 
     [Header("Instantiated")]
     public GameObject CardPrefab;
     public GameObject GemMoney;
+
+    [Header("Battle")]
+    public int battleID = -1; //The ID of the battle they are engaging in
 
     // Start is called before the first frame update    
     void Start()
@@ -62,6 +69,8 @@ public class Card : MonoBehaviour
             AssignTypeStyle();
         }
 
+        AssignContentSprite();
+
         if (cardInfo.maxHealth == 0) {
             Text_Health.text = "";
             HealthTag.enabled = false;
@@ -73,9 +82,9 @@ public class Card : MonoBehaviour
 
         if (cardInfo.type == 1 || cardInfo.type == 2 || cardInfo.type == 3) {
             PriceTag.enabled = true;
-            if (cardInfo.attack > 0) {
-                Text_Price.text = cardInfo.sellPrice.ToString();
-            }
+            //if (cardInfo.attack > 0) {
+                Text_Price.text = cardInfo.attack.ToString();
+            //}
         }
         else {
             PriceTag.enabled = true;
@@ -87,31 +96,87 @@ public class Card : MonoBehaviour
 
         ResetCard();
 
-        Debug.LogError(stackedCards.Count);
+        //Debug.LogError(stackedCards.Count);
     }
 
     private void AssignTypeStyle()
     {
         switch (cardInfo.type) {
             case 0:
+                if (cardInfo.id <= 6) {
+                    CardBG.color = new Color(1f, 1f, 0.55f, 1f);
+                }
+                else {
+                    CardBG.color = new Color(1f, 0.85f, 0.65f, 1f);
+                }
+                draggable = true;
+                stackable = true;
                 break;
             case 1:
                 CardBG.color = new Color(0.7f, 0.9f, 1f, 1f);
+                draggable = true;
+                stackable = true;
                 break;
             case 2:
-                CardBG.color = new Color(1f, 0.8f, 0.7f, 1f);
+                CardBG.color = new Color(1f, 0.5f, 0.7f, 1f);
+                draggable = false;
+                stackable = false;
+                InvokeRepeating("ChasePlayers", 1.5f, cardInfo.attackCD * 2f);
                 break;
             case 3:
                 CardBG.color = new Color(1f, 0.7f, 0.95f, 1f);
+                draggable = true;
+                stackable = true;
                 break;
             case 4:
                 CardBG.color = new Color(0f, 0f, 0f, 1f);
+                draggable = true;
+                stackable = true;
                 break;
             case 5:
                 CardBG.color = new Color(0.8f, 1f, 0.95f, 1f);
+                draggable = true;
+                stackable = true;
                 break;
             case 6:
+                draggable = false;
+                stackable = false;
                 break;
+        }
+    }
+    private void AssignContentSprite()
+    {
+        Sprite sprite = boardManager.cardSpritesScript.cardSprites[id];
+
+        if (sprite != null) {
+            ContentSpriteRenderer.enabled = true;
+            ContentSpriteRenderer.sprite = sprite;
+        } else {
+            ContentSpriteRenderer.enabled = false;
+        }
+    }
+
+    private void ChasePlayers()
+    {
+        //TODO: Map players and chase closest one
+        if (battleID != -1) {
+            StartCoroutine(ChaseMotion());
+        }
+    }
+
+    private IEnumerator ChaseMotion()
+    {
+        float timer = 0f;
+        float t;
+
+        while (timer < 0.2f) {
+            t = Mathf.SmoothStep(0f, 1f, timer);
+            t = Mathf.SmoothStep(0f, 1f, t);
+            //Get closer to player with smoothlerp
+            transform.position = transform.position;
+            
+            timer += Time.deltaTime;
+            yield return null;
         }
     }
 
@@ -147,6 +212,25 @@ public class Card : MonoBehaviour
 
         if (isHost) {
             RestackPosition();
+        }
+
+        if (cardInfo.type == 1 || cardInfo.type == 2) {
+            Text_Health.text = cardInfo.currentHealth.ToString();
+        }
+        
+
+        if (cardInfo.type == 1 && battleID == -1) {
+            if (Time.time - lastTimeHealed > 10f) {
+                if (cardInfo.currentHealth < cardInfo.maxHealth) {
+                    cardInfo.currentHealth++;
+                    lastTimeHealed = Time.time;
+                }
+            }
+        }
+
+        //Debug only
+        if (Input.GetKeyDown(KeyCode.H)) {
+            cardInfo.currentHealth = 0;
         }
     }
 
@@ -204,52 +288,58 @@ public class Card : MonoBehaviour
 
     private void OnMouseDown()
     {
-        transform.position += Vector3.up * 0.15f;
-        dragStartPos = transform.position;
-        dragStartMousePos = GetMousePos();
+        if (draggable) {
+            transform.position += Vector3.up * 0.15f;
+            dragStartPos = transform.position;
+            dragStartMousePos = GetMousePos();
+        }
     }
 
     private void OnMouseDrag()
     {
-        if (!isHost) {
-            isHost = true;
+        if (draggable) {
+            if (!isHost) {
+                isHost = true;
 
-            GetHost().ResetCombiningState();
+                GetHost().ResetCombiningState();
+                
+                //Recursively remove previous cards' partial stackedCards
+
+                prevCard.RecursivelyRemoveFromStack(this);
+                prevCard = null;
+            }
             
-            //Recursively remove previous cards' partial stackedCards
+            RestackPosition();
 
-            prevCard.RecursivelyRemoveFromStack(this);
-            prevCard = null;
+            //Make Card isDragging and not interact
+            transform.position = dragStartPos + GetMousePos() - dragStartMousePos;
+            transform.position = new Vector3(transform.position.x, transform.position.y, -5f);
+            isDragging = true;
+            SetWholeStackIsTrigger(true);
         }
-        
-        RestackPosition();
-
-        //Make Card isDragging and not interact
-        transform.position = dragStartPos + GetMousePos() - dragStartMousePos;
-        transform.position = new Vector3(transform.position.x, transform.position.y, -5f);
-        isDragging = true;
-        SetWholeStackIsTrigger(true);
     }
 
     private void OnMouseUp()
     {
-        if (isDragging) {
-            //TODO: Stack Check, and Stack
-            //TODO: If Stack, GhostCard, if not, RigidCard
-            if (StackToClosestCollided()) {
-                isHost = false;
-                GetHost().RestackPosition();
+        if (draggable) {
+            if (isDragging) {
+                //TODO: Stack Check, and Stack
+                //TODO: If Stack, GhostCard, if not, RigidCard
+                if (StackToClosestCollided()) {
+                    isHost = false;
+                    GetHost().RestackPosition();
+                }
+                else {
+                    isHost = true;
+                }
+
+                isDragging = false;
+                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.y * 0.1f - 2.5f);
+
+                RestackPosition();
+
+                SetWholeStackIsTrigger(false);
             }
-            else {
-                isHost = true;
-            }
-
-            isDragging = false;
-            transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.y * 0.1f - 2.5f);
-
-            RestackPosition();
-
-            SetWholeStackIsTrigger(false);
         }
     }
 
@@ -309,6 +399,8 @@ public class Card : MonoBehaviour
             return false;
         }
 
+        //Stack
+
         float distance = 9999f;
         Card closestCard = null;
 
@@ -333,7 +425,7 @@ public class Card : MonoBehaviour
             //Assign new stacks to each card
             prevCard.RecursivelyAddToStack(this);
 
-            //Debug.LogError("ASDASDAD");
+            hostCard.ResetCombiningState();
         }
 
         ListOfOverlapped.Clear();
@@ -413,7 +505,7 @@ public class Card : MonoBehaviour
         if (isDragging) {
             //Debug.LogError(other.gameObject);
             Card otherCard = other.transform.GetComponent<Card>();
-            if (otherCard != null && !stackedCards.Contains(otherCard)) {
+            if (otherCard != null && otherCard.stackable && !stackedCards.Contains(otherCard)) {
                 //Debug.LogError("Overlapping Card!");
                 ListOfOverlapped.Add(other.gameObject);
             }

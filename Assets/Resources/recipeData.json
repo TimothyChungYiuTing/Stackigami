@@ -2,7 +2,7 @@
     "recipeDataArray": [
         {
             "ingredients": [0, 7],
-            "time": 2,
+            "time": 3,
             "drops": [2, 3, 4, 5, 6],
             "chance": [3, 3, 3, 3, 2],
             "recipeStage": 0,
@@ -18,7 +18,7 @@
         },
         {
             "ingredients": [2, 4, 7],
-            "time": 4,
+            "time": 5,
             "drops": [8],
             "chance": [1],
             "recipeStage": 0,
@@ -26,7 +26,7 @@
         },
         {
             "ingredients": [4, 5, 7],
-            "time": 4,
+            "time": 5,
             "drops": [9],
             "chance": [1],
             "recipeStage": 0,
@@ -34,7 +34,7 @@
         },
         {
             "ingredients": [2, 5, 7],
-            "time": 4,
+            "time": 5,
             "drops": [10],
             "chance": [1],
             "recipeStage": 0,
