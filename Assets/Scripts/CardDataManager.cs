@@ -17,6 +17,7 @@ public class CardInfo {
     public int attack = 0;
     public int attackCD = 1;
     public int attr = 0;
+    public List<int> drops = new();
 
     public List<CardInfo> stackedCards;
 
@@ -32,6 +33,7 @@ public class CardInfo {
         attack = cardDataArray[id].attack;
         attackCD = cardDataArray[id].attackCD;
         attr = cardDataArray[id].attr;
+        drops = cardDataArray[id].drops;
     }
 }
 

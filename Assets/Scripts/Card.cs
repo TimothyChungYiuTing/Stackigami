@@ -101,9 +101,36 @@ public class Card : MonoBehaviour
         //Debug.LogError(stackedCards.Count);
     }
 
+    private void Die(Card card)
+    {
+        //Drops
+        if (card.cardInfo.drops != null && card.cardInfo.drops.Count > 0) {
+            int randDropID = card.cardInfo.drops[Random.Range(0, card.cardInfo.drops.Count)];
+            Debug.Log(randDropID);
+            CreateCard(randDropID);
+        }
+
+        //Check if all conjurators dead
+        if (id == 7) {
+            int conjuratorNum = 0;
+            foreach(Card existingCard in boardManager.existingCardsList) {
+                if (existingCard.cardInfo.id == 7)
+                    conjuratorNum++;
+            }
+            if (conjuratorNum == 1) {
+                //TODO: Lose Condition, Restart
+            }
+        }
+
+        CardDestroy(card);
+    }
+
     private void CardDestroy(Card card)
     {
         boardManager.existingCardsList.Remove(card);
+        card.coll.enabled = false;
+        //TODO: Disappear sequence
+        //Delaye Destroy
         Destroy(card.gameObject);
     }
 
@@ -197,6 +224,7 @@ public class Card : MonoBehaviour
             t = Mathf.SmoothStep(0f, 1f, timer);
             t = Mathf.SmoothStep(0f, 1f, t);
             //Get closer to player with smoothlerp
+            if (battleID == -1 && closestAttackableCard != null)
             transform.position += (Vector3)((Vector2)(closestAttackableCard.transform.position - transform.position)).normalized * Time.deltaTime * 8f;
             
             timer += Time.deltaTime;
@@ -240,6 +268,11 @@ public class Card : MonoBehaviour
 
         if (cardInfo.type == 1 || cardInfo.type == 2) {
             Text_Health.text = cardInfo.currentHealth.ToString();
+            
+
+            if (coll.enabled && cardInfo.currentHealth <= 0) {
+                Die(this);
+            }
         }
         
 
@@ -306,7 +339,11 @@ public class Card : MonoBehaviour
     private void CreateCard(int cardID)
     {
         //TODO: Instantiate card and change ID
-        GameObject NewCard = Instantiate(CardPrefab, stackedCards[^1].transform.position + Vector3.down * 0.1f, Quaternion.identity);
+        GameObject NewCard;
+        if (stackedCards.Count > 0)
+            NewCard = Instantiate(CardPrefab, stackedCards[^1].transform.position + Vector3.down * 0.1f, Quaternion.identity);
+        else
+            NewCard = Instantiate(CardPrefab, transform.position + Vector3.down * 0.1f, Quaternion.identity);
         NewCard.GetComponent<Card>().id = cardID;
     }
 
