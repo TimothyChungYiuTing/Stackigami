@@ -54,10 +54,8 @@ public class Card : MonoBehaviour
     // Start is called before the first frame update    
     void Start()
     {
-        if (id == 37) {
-            CardDestroy(this);
-            //ToDo: Open Portal
-        }
+        rb = GetComponent<Rigidbody2D>();
+        coll = GetComponent<BoxCollider2D>();
 
         combiningRecipe = null;
         cardDataManager = FindObjectOfType<CardDataManager>();
@@ -66,7 +64,11 @@ public class Card : MonoBehaviour
         cardInfo = new CardInfo(id, cardDataManager.cardDatas.cardDataArray);
         boardManager.existingCardsList.Add(this);
 
-        if (id == 0) {
+        if (id == 37) {
+            CardDestroy(this);
+            //ToDo: Open Portal
+        }
+        else if (id == 0) {
             CardBG.color = Color.white;
         } else {
             AssignTypeStyle();
@@ -103,9 +105,6 @@ public class Card : MonoBehaviour
             PriceTag.enabled = true;
             Text_Price.text = cardInfo.sellPrice.ToString();
         }
-
-        rb = GetComponent<Rigidbody2D>();
-        coll = GetComponent<BoxCollider2D>();
 
         ResetCard();
 
@@ -195,7 +194,7 @@ public class Card : MonoBehaviour
                 break;
             case 3:
                 CardBG.color = new Color(0.82f, 0.54f, 0.96f, 1f);
-                ChangeDrawnColor(new Color(1f, 0.87f, 1f, 0.9f), Color.white, Color.black);
+                ChangeDrawnColor(new Color(1f, 0.87f, 1f, 0.9f), Color.black, Color.black);
                 draggable = true;
                 stackable = true;
                 CardFrame.enabled = true;
@@ -242,8 +241,8 @@ public class Card : MonoBehaviour
         Text_Price.color = colorStats;
         Text_Health.color = colorStats;
         if (colorStats == Color.black) {
-            Text_Price.fontSize = 2.7f;
-            Text_Health.fontSize = 2.7f;
+            Text_Price.fontSize = 2.8f;
+            Text_Health.fontSize = 2.8f;
         } else {
             Text_Price.fontSize = 2.4f;
             Text_Health.fontSize = 2.4f;
