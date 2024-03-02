@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,18 @@ public class BoardManager : MonoBehaviour
     public CardSprites cardSpritesScript;
     public List<Card> existingCardsList = new();
     public List<Battle> battleList = new();
+
+    public GameObject curseFrame;
+
+    public bool oniDiscovered = false;
+    public int stage = 0; //0: Start, 1: Pentagram discovered, 2: Rift 1 discovered
+
+    public void StartBattle(Card goodCard, Card evilCard)
+    {
+        //Start battle between 2 cards
+
+        Debug.Log("Battle started between " + goodCard.id + " & " + evilCard.id);
+    }
 
     // Start is called before the first frame update
     void Awake()

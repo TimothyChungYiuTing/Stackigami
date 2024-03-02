@@ -5,6 +5,9 @@ using UnityEngine;
 public class CardSprites : MonoBehaviour
 {
     public List<Sprite> cardSprites;
+    public List<Sprite> characterSprites;
+    public List<Sprite> bgSprites;
+    public List<Sprite> outerFrameSprites;
 
     // Start is called before the first frame update
     void Start()

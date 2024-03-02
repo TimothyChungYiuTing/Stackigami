@@ -16,6 +16,7 @@ public class Gem : MonoBehaviour
 
     private InteractableFrame incantFrame = null;
     private InteractableFrame inspirationFrame = null;
+    private InteractableFrame curseFrame = null;
 
     // Start is called before the first frame update
     void Start()
@@ -67,6 +68,12 @@ public class Gem : MonoBehaviour
                     inspirationFrame.OpenPack();
                 }
             }
+            else if (curseFrame != null) {
+                if (int.Parse(Text_Amount.text) >= 7) {
+                    Text_Amount.text = (int.Parse(Text_Amount.text) - 7).ToString();
+                    curseFrame.OpenPack();
+                }
+            }
         }
     }
 
@@ -87,6 +94,9 @@ public class Gem : MonoBehaviour
             if (IF.interactMode == InteractMode.Inspiration) {
                 inspirationFrame = IF;
             }
+            if (IF.interactMode == InteractMode.Curse) {
+                curseFrame = IF;
+            }
         }
     }
 
@@ -99,6 +109,9 @@ public class Gem : MonoBehaviour
             }
             if (IF.interactMode == InteractMode.Inspiration) {
                 inspirationFrame = null;
+            }
+            if (IF.interactMode == InteractMode.Curse) {
+                curseFrame = null;
             }
         }
     }

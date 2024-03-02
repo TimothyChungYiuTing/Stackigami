@@ -442,7 +442,7 @@
             "attackCD": 0.7,
             "health": 18,
             "attr": 4,
-            "drops": []
+            "drops": [32, 32]
         },
         {
             "id": 37,

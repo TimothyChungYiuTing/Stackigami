@@ -41,6 +41,7 @@ public class Card : MonoBehaviour
     public TextMeshPro Text_Name;
     public TextMeshPro Text_Price;
     public TextMeshPro Text_Health;
+    public SpriteRenderer CharacterSpriteRenderer;
     public SpriteRenderer ContentSpriteRenderer;
 
     [Header("Instantiated")]
@@ -69,9 +70,19 @@ public class Card : MonoBehaviour
             CardBG.color = Color.white;
         } else {
             AssignTypeStyle();
+            
+            //Stage management
+            if (id == 15 && !boardManager.oniDiscovered) {
+                boardManager.oniDiscovered = true;
+                boardManager.curseFrame.SetActive(true);
+            } else if (id == 18 && boardManager.stage == 0) {
+                boardManager.stage++;
+            } else if (id == 28 && boardManager.stage == 1) {
+                boardManager.stage++;
+            }
         }
 
-        AssignContentSprite();
+        AssignContentSprite_And_BGSprites();
 
         if (cardInfo.maxHealth == 0) {
             Text_Health.text = "";
@@ -105,9 +116,8 @@ public class Card : MonoBehaviour
     {
         //Drops
         if (card.cardInfo.drops != null && card.cardInfo.drops.Count > 0) {
-            int randDropID = card.cardInfo.drops[Random.Range(0, card.cardInfo.drops.Count)];
-            Debug.Log(randDropID);
-            CreateCard(randDropID);
+            foreach(int id in card.cardInfo.drops)
+                CreateCard(id);
         }
 
         //Check if all conjurators dead
@@ -144,43 +154,116 @@ public class Card : MonoBehaviour
                 else {
                     CardBG.color = new Color(1f, 0.85f, 0.65f, 1f);
                 }
+                ChangeDrawnColor(new Color(0.77f, 0.22f, 0.07f, 0.9f), Color.white, new Color(0.32f, 0f, 0f, 1f));
                 draggable = true;
                 stackable = true;
+                CardFrame.enabled = true;
+                CharacterSpriteRenderer.enabled = false;
+                PositionYValues(-0.1f);
                 break;
             case 1:
-                CardBG.color = new Color(0.8f, 0.95f, 1f, 0.6f);
+                if (cardInfo.id == 7) {
+                    CardBG.color = new Color(0.54f, 0.46f, 0.12f, 0.8f);
+                    ChangeDrawnColor(new Color(1f, 0.97f, 0.87f, 0.9f), Color.black, Color.white);
+                }
+                else if (cardInfo.id == 17) {
+                    CardBG.color = new Color(0.8f, 0.95f, 1f, 0.7f);
+                    ChangeDrawnColor(new Color(0.1f, 0.2f, 0.8f, 0.9f), Color.white, Color.black);
+                }
+                else {
+                    CardBG.color = new Color(0.66f, 0.75f, 0.92f, 0.7f);
+                    ChangeDrawnColor(new Color(0.1f, 0.2f, 0.8f, 0.9f), Color.white, Color.black);
+                }
                 draggable = true;
                 stackable = true;
+                CardFrame.enabled = false;
+                CharacterSpriteRenderer.enabled = true;
+                AssignCharacterSprite();
+                PositionYValues(-0.27f);
                 break;
             case 2:
-                CardBG.color = new Color(1f, 0.75f, 0.9f, 0.6f);
+                CardBG.color = new Color(1f, 0.75f, 0.9f, 0.9f);
+                ChangeDrawnColor(new Color(0.8f, 0.2f, 0.3f, 0.9f), Color.white, Color.black);
                 draggable = false;
                 stackable = false;
+                CardFrame.enabled = false;
+                CharacterSpriteRenderer.enabled = true;
+                AssignCharacterSprite();
+                PositionYValues(-0.27f);
+
                 InvokeRepeating("ChasePlayers", 1.5f, cardInfo.attackCD * 2f);
                 break;
             case 3:
-                CardBG.color = new Color(1f, 0.7f, 0.95f, 1f);
+                CardBG.color = new Color(0.82f, 0.54f, 0.96f, 1f);
+                ChangeDrawnColor(new Color(1f, 0.87f, 1f, 0.9f), Color.white, Color.black);
                 draggable = true;
                 stackable = true;
+                CardFrame.enabled = true;
+                CharacterSpriteRenderer.enabled = false;
+                PositionYValues(-0.1f);
                 break;
             case 4:
                 CardBG.color = new Color(0f, 0f, 0f, 1f);
+                ChangeDrawnColor(new Color(1f, 0.8f, 0.8f, 0.9f), Color.black, Color.white);
                 draggable = true;
                 stackable = true;
+                CardFrame.enabled = true;
+                CharacterSpriteRenderer.enabled = false;
+                PositionYValues(-0.1f);
                 break;
             case 5:
-                CardBG.color = new Color(0.8f, 1f, 0.95f, 1f);
+                CardBG.color = new Color(0.66f, 92f, 0.77f, 1f);
+                ChangeDrawnColor(new Color(0.05f, 0.45f, 0.21f, 0.9f), Color.white, Color.black);
                 draggable = true;
                 stackable = true;
+                CardFrame.enabled = true;
+                CharacterSpriteRenderer.enabled = false;
+                PositionYValues(-0.1f);
                 break;
             case 6:
+                CardBG.color = new Color(1f, 1f, 0.55f, 1f);
+                ChangeDrawnColor(new Color(0.77f, 0.22f, 0.07f, 0.9f), Color.white, new Color(0.32f, 0f, 0f, 1f));
                 draggable = false;
                 stackable = false;
+                CardFrame.enabled = false;
+                CharacterSpriteRenderer.enabled = false;
+                PositionYValues(-0.1f);
                 break;
         }
     }
-    private void AssignContentSprite()
+
+    private void ChangeDrawnColor(Color colorWeak, Color colorStats, Color colorStrong)
     {
+        Text_Name.color = colorStrong;
+        CardFrame.color = colorWeak;
+        CardOuterFrame.color = colorWeak;
+        PriceTag.color = colorWeak;
+        HealthTag.color = colorWeak;
+        Text_Price.color = colorStats;
+        Text_Health.color = colorStats;
+        if (colorStats == Color.black) {
+            Text_Price.fontSize = 2.7f;
+            Text_Health.fontSize = 2.7f;
+        } else {
+            Text_Price.fontSize = 2.4f;
+            Text_Health.fontSize = 2.4f;
+        }
+
+        if (cardInfo.type == 1 || cardInfo.type == 2)
+            ContentSpriteRenderer.color = Color.white;
+        else
+            ContentSpriteRenderer.color = colorStrong;
+    }
+
+    private void PositionYValues(float y)
+    {
+        ContentSpriteRenderer.transform.localPosition = new Vector3(ContentSpriteRenderer.transform.localPosition.x, y, ContentSpriteRenderer.transform.localPosition.z);
+        CharacterSpriteRenderer.transform.localPosition = new Vector3(CharacterSpriteRenderer.transform.localPosition.x, y, CharacterSpriteRenderer.transform.localPosition.z);
+    }
+
+    private void AssignContentSprite_And_BGSprites()
+    {
+        //Content Sprite
         Sprite sprite = boardManager.cardSpritesScript.cardSprites[id];
 
         if (sprite != null) {
@@ -188,6 +271,49 @@ public class Card : MonoBehaviour
             ContentSpriteRenderer.sprite = sprite;
         } else {
             ContentSpriteRenderer.enabled = false;
+        }
+
+        //BG Sprite
+        if (cardInfo.type == 1 || cardInfo.type == 2)
+            sprite = boardManager.cardSpritesScript.bgSprites[1];
+        else
+            sprite = boardManager.cardSpritesScript.bgSprites[0];
+
+        if (sprite != null) {
+            CardBG.enabled = true;
+            CardBG.sprite = sprite;
+        } else {
+            CardBG.enabled = false;
+        }
+
+        //Outer Frame Sprite
+        if (cardInfo.type == 1 || cardInfo.type == 2)
+            sprite = boardManager.cardSpritesScript.outerFrameSprites[1];
+        else
+            sprite = boardManager.cardSpritesScript.outerFrameSprites[0];
+
+        if (sprite != null) {
+            CardOuterFrame.enabled = true;
+            CardOuterFrame.sprite = sprite;
+        } else {
+            CardOuterFrame.enabled = false;
+        }
+    }
+    private void AssignCharacterSprite()
+    {
+        Sprite sprite;
+        if (cardInfo.id == 17)
+            sprite = boardManager.cardSpritesScript.characterSprites[0];
+        else if (cardInfo.type == 1)
+            sprite = boardManager.cardSpritesScript.characterSprites[1];
+        else
+            sprite = boardManager.cardSpritesScript.characterSprites[2];
+
+        if (sprite != null) {
+            CharacterSpriteRenderer.enabled = true;
+            CharacterSpriteRenderer.sprite = sprite;
+        } else {
+            CharacterSpriteRenderer.enabled = false;
         }
     }
 
@@ -287,6 +413,12 @@ public class Card : MonoBehaviour
 
         //Debug only
         if (Input.GetKeyDown(KeyCode.H)) {
+            cardInfo.currentHealth = 0;
+        }
+        if (cardInfo.type == 1 && Input.GetKeyDown(KeyCode.G)) {
+            cardInfo.currentHealth = 0;
+        }
+        if (cardInfo.type == 2 && Input.GetKeyDown(KeyCode.J)) {
             cardInfo.currentHealth = 0;
         }
     }
@@ -574,6 +706,12 @@ public class Card : MonoBehaviour
                 ListOfOverlappedFrame.Add(other.gameObject);
             }
         }
+
+        if (cardInfo.type == 2) {
+            Card otherCard = other.transform.GetComponent<Card>();
+            if (otherCard != null)
+                boardManager.StartBattle(otherCard, this);
+        }
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -583,6 +721,16 @@ public class Card : MonoBehaviour
         }
         if (other.gameObject.layer == LayerMask.NameToLayer("InteractableFrame")) {
             ListOfOverlappedFrame.Remove(other.gameObject);
+        }
+    }
+    
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (cardInfo.type == 2) {
+            Card otherCard = other.transform.GetComponent<Card>();
+            if (otherCard != null)
+                boardManager.StartBattle(otherCard, this);
         }
     }
 }

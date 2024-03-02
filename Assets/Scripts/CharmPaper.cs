@@ -6,7 +6,7 @@ public class CharmPaper : Card
 {
     // Start is called before the first frame update
     public int attack = 0;
-    public int attackCD = 1;
+    public float attackCD = 1;
     public int health = 0;
     public int attr = 0;
 

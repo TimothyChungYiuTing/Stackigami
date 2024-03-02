@@ -15,7 +15,7 @@ public class CardInfo {
     public int currentHealth;
     public int maxHealth;
     public int attack = 0;
-    public int attackCD = 1;
+    public float attackCD = 1;
     public int attr = 0;
     public List<int> drops = new();
 
@@ -52,7 +52,7 @@ public class CardDataManager : MonoBehaviour
         public int sellPrice = 0;
         public int sellEffect = 0; // -1 is not-sellable, 0 is no effect, 1 is spawn random enemy effect
         public int attack = 0;
-        public int attackCD = 0;
+        public float attackCD = 0;
         public int health = 0;
         public int attr = 0; // Chi, Sui, Ka, Fu, Ku
         public List<int> drops = new(); // Drops after death
