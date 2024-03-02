@@ -198,7 +198,7 @@ public class Card : MonoBehaviour
                 AssignCharacterSprite();
                 PositionYValues(-0.27f);
 
-                InvokeRepeating("ChasePlayers", 1.5f, cardInfo.attackCD * 2f);
+                InvokeRepeating("ChasePlayers", 1.5f, cardInfo.attackCD * 1.5f + 0.5f);
                 break;
             case 3:
                 CardBG.color = new Color(0.82f, 0.54f, 0.96f, 1f);
@@ -618,7 +618,7 @@ public class Card : MonoBehaviour
                     if (OverlappedFrame.riftCards[0] == null) {
                         OverlappedFrame.riftCards[0] = this;
                         rb.bodyType = RigidbodyType2D.Kinematic;
-                        transform.position = OverlappedFrame.transform.position + Vector3.left * 2.5f;
+                        transform.position = OverlappedFrame.transform.position + Vector3.down * 0.3f + Vector3.left * 2.5f;
                         
                         inRift = true;
                         riftPos = 0;
@@ -628,7 +628,7 @@ public class Card : MonoBehaviour
                     else if (OverlappedFrame.riftCards[1] == null) {
                         OverlappedFrame.riftCards[1] = this;
                         rb.bodyType = RigidbodyType2D.Kinematic;
-                        transform.position = OverlappedFrame.transform.position;
+                        transform.position = OverlappedFrame.transform.position + Vector3.down * 0.3f;
                         
                         inRift = true;
                         riftPos = 1;
@@ -638,7 +638,7 @@ public class Card : MonoBehaviour
                     else if (OverlappedFrame.riftCards[2] == null) {
                         OverlappedFrame.riftCards[2] = this;
                         rb.bodyType = RigidbodyType2D.Kinematic;
-                        transform.position = OverlappedFrame.transform.position + Vector3.right * 2.5f;
+                        transform.position = OverlappedFrame.transform.position + Vector3.down * 0.3f + Vector3.right * 2.5f;
                         
                         inRift = true;
                         riftPos = 2;

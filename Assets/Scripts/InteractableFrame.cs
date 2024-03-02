@@ -14,9 +14,18 @@ public class InteractableFrame : MonoBehaviour
     private TextMeshPro Text_Words;
     
     public Card[] riftCards = new Card[3];
+    public List<GameObject> RiftPositionsHint;
 
     [Header("Instantiated")]
     public GameObject PackPrefab;
+    public GameObject CardPrefab;
+
+    
+    [Header("Rift")]
+    public bool isExploring = false;
+    public float riftNeededTime = 20f;
+    public GameObject ProgressBG;
+    public List<int> PossibleRiftOutcomes;
 
     // Start is called before the first frame update
     void Start()
@@ -29,7 +38,17 @@ public class InteractableFrame : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (interactMode == InteractMode.Rift) {
+            if (!isExploring && (riftCards[0] != null || riftCards[1] != null || riftCards[2] != null)) {
+                isExploring = true;
+                StartCoroutine(Explore(riftNeededTime));
+            }
+            else if (isExploring && riftCards[0] == null && riftCards[1] == null && riftCards[2] == null) {
+                isExploring = false;
+                StopAllCoroutines();
+                ProgressBG.SetActive(false);
+            }
+        }
     }
 
     public void OpenPack()
@@ -64,8 +83,52 @@ public class InteractableFrame : MonoBehaviour
     public void UnlockRift()
     {
         Text_Words.text = "Seimei's Palace";
-        Text_Words.transform.localPosition = new Vector3(0f, 1.4f, -0.002f);
+        Text_Words.transform.localPosition = new Vector3(0f, 1.8f, -0.002f);
         coll.enabled = true;
+        foreach (GameObject hint in RiftPositionsHint) {
+            hint.SetActive(true);
+        }
         Invoke("CollTriggerTrue", 0.4f);
     }
+    
+    private IEnumerator Explore(float neededTime)
+    {
+        float timer = 0;
+        Vector3 fromPos = new Vector3(-0.49f, 0f, -0.1f);
+        Vector3 toPos = new Vector3(0f, 0f, -0.1f);
+        Vector3 fromScale = new Vector3(0.005f, 0.8f, 1f);
+        Vector3 toScale = new Vector3(0.99f, 0.8f, 0.1f);
+        
+        ProgressBG.SetActive(true);
+
+        int combiningID = PossibleRiftOutcomes[Random.Range(0, PossibleRiftOutcomes.Count)];
+
+        Transform ProgressBarTransform = ProgressBG.transform.GetChild(0);
+        while(timer < neededTime) {
+            ProgressBarTransform.localPosition = Vector3.Lerp(fromPos, toPos, timer/neededTime);
+            ProgressBarTransform.localScale = Vector3.Lerp(fromScale, toScale, timer/neededTime);
+
+            if (riftCards[0] != null)
+                timer += Time.deltaTime;
+            if (riftCards[1] != null)
+                timer += Time.deltaTime;
+            if (riftCards[2] != null)
+                timer += Time.deltaTime;
+
+            yield return null;
+        }
+
+        ProgressBG.SetActive(false);
+        CreateCard(combiningID);
+
+        StartCoroutine(Explore(neededTime));
+    }
+    
+    private void CreateCard(int cardID)
+    {
+        //Instantiate card and change ID
+        GameObject NewCard = Instantiate(CardPrefab, transform.position + Vector3.up * 4f, Quaternion.identity);
+        NewCard.GetComponent<Card>().id = cardID;
+    }
+    
 }
