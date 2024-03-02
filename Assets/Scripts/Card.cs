@@ -54,14 +54,16 @@ public class Card : MonoBehaviour
     void Start()
     {
         if (id == 37) {
-            Destroy(gameObject);
+            CardDestroy(this);
             //ToDo: Open Portal
         }
 
         combiningRecipe = null;
         cardDataManager = FindObjectOfType<CardDataManager>();
         boardManager = FindObjectOfType<BoardManager>();
+        
         cardInfo = new CardInfo(id, cardDataManager.cardDatas.cardDataArray);
+        boardManager.existingCardsList.Add(this);
 
         if (id == 0) {
             CardBG.color = Color.white;
@@ -99,6 +101,12 @@ public class Card : MonoBehaviour
         //Debug.LogError(stackedCards.Count);
     }
 
+    private void CardDestroy(Card card)
+    {
+        boardManager.existingCardsList.Remove(card);
+        Destroy(card.gameObject);
+    }
+
     private void AssignTypeStyle()
     {
         switch (cardInfo.type) {
@@ -113,12 +121,12 @@ public class Card : MonoBehaviour
                 stackable = true;
                 break;
             case 1:
-                CardBG.color = new Color(0.7f, 0.9f, 1f, 1f);
+                CardBG.color = new Color(0.8f, 0.95f, 1f, 0.6f);
                 draggable = true;
                 stackable = true;
                 break;
             case 2:
-                CardBG.color = new Color(1f, 0.5f, 0.7f, 1f);
+                CardBG.color = new Color(1f, 0.75f, 0.9f, 0.6f);
                 draggable = false;
                 stackable = false;
                 InvokeRepeating("ChasePlayers", 1.5f, cardInfo.attackCD * 2f);
@@ -159,7 +167,7 @@ public class Card : MonoBehaviour
     private void ChasePlayers()
     {
         //TODO: Map players and chase closest one
-        if (battleID != -1) {
+        if (battleID == -1) {
             StartCoroutine(ChaseMotion());
         }
     }
@@ -169,11 +177,27 @@ public class Card : MonoBehaviour
         float timer = 0f;
         float t;
 
+        Card closestAttackableCard = null;
+        float distance = 9999f;
+
+        foreach (Card existingCard in boardManager.existingCardsList) {
+            if (existingCard.cardInfo.type == 1) {
+                float tempDistance = Vector2.Distance(transform.position, existingCard.transform.position);
+                if (tempDistance < distance) {
+                    distance = tempDistance;
+                    closestAttackableCard = existingCard;
+                }
+            }
+        }
+
+        if (closestAttackableCard == null)
+            yield break;
+
         while (timer < 0.2f) {
             t = Mathf.SmoothStep(0f, 1f, timer);
             t = Mathf.SmoothStep(0f, 1f, t);
             //Get closer to player with smoothlerp
-            transform.position = transform.position;
+            transform.position += (Vector3)((Vector2)(closestAttackableCard.transform.position - transform.position)).normalized * Time.deltaTime * 8f;
             
             timer += Time.deltaTime;
             yield return null;
@@ -260,7 +284,7 @@ public class Card : MonoBehaviour
                 card.ResetCard();
             }
             else {
-                Destroy(card.gameObject);
+                CardDestroy(card);
             }
         }
 
@@ -268,7 +292,7 @@ public class Card : MonoBehaviour
             ResetCard();
         }
         else {
-            Destroy(gameObject);
+            CardDestroy(this);
         }
     }
 
@@ -388,12 +412,12 @@ public class Card : MonoBehaviour
 
                 foreach(Card ToBeSold in ToBeSoldList) {
                     InstantiateMoney(ToBeSold);
-                    Destroy(ToBeSold.gameObject);
+                    CardDestroy(ToBeSold);
                 }
 
                 if (cardInfo.sellEffect != -1) {
                     InstantiateMoney(this);
-                    Destroy(gameObject);
+                    CardDestroy(this);
                 }
             }
             return false;
