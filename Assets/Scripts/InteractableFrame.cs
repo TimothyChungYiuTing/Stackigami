@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
@@ -10,6 +11,9 @@ public class InteractableFrame : MonoBehaviour
 
     private Collider2D coll;
     private BoardManager boardManager;
+    private TextMeshPro Text_Words;
+    
+    public Card[] riftCards = new Card[3];
 
     [Header("Instantiated")]
     public GameObject PackPrefab;
@@ -19,6 +23,7 @@ public class InteractableFrame : MonoBehaviour
     {
         coll = GetComponent<Collider2D>();
         boardManager = FindObjectOfType<BoardManager>();
+        Text_Words = transform.GetChild(0).GetComponent<TextMeshPro>();
     }
 
     // Update is called once per frame
@@ -54,5 +59,13 @@ public class InteractableFrame : MonoBehaviour
     private void CollTriggerTrue()
     {
         coll.isTrigger = true;
+    }
+
+    public void UnlockRift()
+    {
+        Text_Words.text = "Seimei's Palace";
+        Text_Words.transform.localPosition = new Vector3(0f, 1.4f, -0.002f);
+        coll.enabled = true;
+        Invoke("CollTriggerTrue", 0.4f);
     }
 }

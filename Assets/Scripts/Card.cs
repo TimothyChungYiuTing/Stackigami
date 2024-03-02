@@ -51,6 +51,10 @@ public class Card : MonoBehaviour
     [Header("Battle")]
     public int battleID = -1; //The ID of the battle they are engaging in
 
+    [Header("Rift")]
+    private bool inRift = false;
+    private int riftPos = -1;
+
     // Start is called before the first frame update    
     void Start()
     {
@@ -65,8 +69,12 @@ public class Card : MonoBehaviour
         boardManager.existingCardsList.Add(this);
 
         if (id == 37) {
-            CardDestroy(this);
-            //ToDo: Open Portal
+            //Open Portal
+            boardManager.riftFrame.UnlockRift();
+            
+            boardManager.existingCardsList.Remove(this);
+            coll.enabled = false;
+            Destroy(gameObject);
         }
         else if (id == 0) {
             CardBG.color = Color.white;
@@ -139,7 +147,7 @@ public class Card : MonoBehaviour
         boardManager.existingCardsList.Remove(card);
         card.coll.enabled = false;
         //TODO: Disappear sequence
-        //Delaye Destroy
+        //Delayed Destroy
         Destroy(card.gameObject);
     }
 
@@ -318,7 +326,7 @@ public class Card : MonoBehaviour
 
     private void ChasePlayers()
     {
-        //TODO: Map players and chase closest one
+        //Map players and chase closest one
         if (battleID == -1) {
             StartCoroutine(ChaseMotion());
         }
@@ -371,7 +379,7 @@ public class Card : MonoBehaviour
         if (isHost && combiningRecipe == null) {
             //Debug.Log("CombiningRecipe is null");
             if (RecipeExists(id, stackedCards, cardDataManager.recipeDatas.recipeDataArray)) {
-                //TODO: Start Combining
+                //Start Combining
                 ProgressBG.SetActive(true);
                 StartCoroutine(Craft(combiningRecipe));
             }
@@ -469,7 +477,7 @@ public class Card : MonoBehaviour
 
     private void CreateCard(int cardID)
     {
-        //TODO: Instantiate card and change ID
+        //Instantiate card and change ID
         GameObject NewCard;
         if (stackedCards.Count > 0)
             NewCard = Instantiate(CardPrefab, stackedCards[^1].transform.position + Vector3.down * 0.1f, Quaternion.identity);
@@ -484,7 +492,22 @@ public class Card : MonoBehaviour
             transform.position += Vector3.up * 0.15f;
             dragStartPos = transform.position;
             dragStartMousePos = GetMousePos();
+            
+            //Remove from rift if original is from rift
+            rb.bodyType = RigidbodyType2D.Dynamic;
+            if (inRift) {
+                inRift = false;
+                RemoveFromRift(riftPos);
+                riftPos = -1;
+
+                //TODO: Stop exploring
+            }
         }
+    }
+
+    private void RemoveFromRift(int riftPos)
+    {
+        boardManager.riftFrame.riftCards[riftPos] = null;
     }
 
     private void OnMouseDrag()
@@ -515,8 +538,7 @@ public class Card : MonoBehaviour
     {
         if (draggable) {
             if (isDragging) {
-                //TODO: Stack Check, and Stack
-                //TODO: If Stack, GhostCard, if not, RigidCard
+                //Stack Check, and Stack
                 if (StackToClosestCollided()) {
                     isHost = false;
                     GetHost().RestackPosition();
@@ -556,8 +578,9 @@ public class Card : MonoBehaviour
     private bool StackToClosestCollided()
     {
         if (ListOfOverlappedFrame.Count > 0) {
+            InteractableFrame OverlappedFrame = ListOfOverlappedFrame[0].GetComponent<InteractableFrame>();
             //Sell Or Buy
-            if (ListOfOverlappedFrame[0].GetComponent<InteractableFrame>().interactMode == InteractMode.Sell) {
+            if (OverlappedFrame.interactMode == InteractMode.Sell) {
                 int sumOfSold = 0;
                 List<Card> ToBeSoldList = new();
 
@@ -588,44 +611,89 @@ public class Card : MonoBehaviour
                     CardDestroy(this);
                 }
             }
+            
+            //Enter Rift
+            if (OverlappedFrame.interactMode == InteractMode.Rift) {
+                if (cardInfo.type == 1 && cardInfo.id != 17 && stackedCards.Count == 0) { //If non-puppet ally only
+                    if (OverlappedFrame.riftCards[0] == null) {
+                        OverlappedFrame.riftCards[0] = this;
+                        rb.bodyType = RigidbodyType2D.Kinematic;
+                        transform.position = OverlappedFrame.transform.position + Vector3.left * 2.5f;
+                        
+                        inRift = true;
+                        riftPos = 0;
+                        
+                        //TODO: Start exploring
+                    }
+                    else if (OverlappedFrame.riftCards[1] == null) {
+                        OverlappedFrame.riftCards[1] = this;
+                        rb.bodyType = RigidbodyType2D.Kinematic;
+                        transform.position = OverlappedFrame.transform.position;
+                        
+                        inRift = true;
+                        riftPos = 1;
+                        
+                        //TODO: Start exploring
+                    }
+                    else if (OverlappedFrame.riftCards[2] == null) {
+                        OverlappedFrame.riftCards[2] = this;
+                        rb.bodyType = RigidbodyType2D.Kinematic;
+                        transform.position = OverlappedFrame.transform.position + Vector3.right * 2.5f;
+                        
+                        inRift = true;
+                        riftPos = 2;
+                        
+                        //TODO: Start exploring
+                    }
+                }
+                ListOfOverlappedFrame.Clear();
+            }
+
+            ListOfOverlapped.Clear();
             return false;
         }
 
         //Stack
+        if ((cardInfo.type != 1 && cardInfo.type != 2 && cardInfo.type != 3) || cardInfo.id == 7 || cardInfo.id == 17) {
+            //Stackable type of card
+            float distance = 9999f;
+            Card closestCard = null;
 
-        float distance = 9999f;
-        Card closestCard = null;
-
-        foreach (GameObject cardGameObject in ListOfOverlapped) {
-            float tempDistance = Vector2.Distance(transform.position, cardGameObject.transform.position);
-            if (tempDistance < distance) {
-                distance = tempDistance;
-                closestCard = cardGameObject.GetComponent<Card>();;
+            foreach (GameObject cardGameObject in ListOfOverlapped) {
+                float tempDistance = Vector2.Distance(transform.position, cardGameObject.transform.position);
+                if (tempDistance < distance) {
+                    distance = tempDistance;
+                    closestCard = cardGameObject.GetComponent<Card>();;
+                }
             }
+            Card hostCard = null;
+
+            if (closestCard != null) {
+                hostCard = closestCard.GetHost();
+
+                //Assign prev card
+                if (hostCard.stackedCards.Count > 0)
+                    prevCard = hostCard.stackedCards[^1];
+                else
+                    prevCard = hostCard;
+
+                //Assign new stacks to each card
+                prevCard.RecursivelyAddToStack(this);
+
+                hostCard.ResetCombiningState();
+            }
+
+            ListOfOverlapped.Clear();
+            ListOfOverlappedFrame.Clear();
+
+            if (prevCard != null)
+                return true;
+            return false;
         }
-        Card hostCard = null;
-
-        if (closestCard != null) {
-            hostCard = closestCard.GetHost();
-
-            //Assign prev card
-            if (hostCard.stackedCards.Count > 0)
-                prevCard = hostCard.stackedCards[^1];
-            else
-                prevCard = hostCard;
-
-            //Assign new stacks to each card
-            prevCard.RecursivelyAddToStack(this);
-
-            hostCard.ResetCombiningState();
+        else {
+            //Unstackable type of card
+            return false;
         }
-
-        ListOfOverlapped.Clear();
-        ListOfOverlappedFrame.Clear();
-
-        if (prevCard != null)
-            return true;
-        return false;
     }
 
     private void InstantiateMoney(Card toBeSold)
@@ -699,7 +767,8 @@ public class Card : MonoBehaviour
             Card otherCard = other.transform.GetComponent<Card>();
             if (otherCard != null && otherCard.stackable && !stackedCards.Contains(otherCard)) {
                 //Debug.LogError("Overlapping Card!");
-                ListOfOverlapped.Add(other.gameObject);
+                if ((otherCard.cardInfo.type != 1 && otherCard.cardInfo.type != 2 && otherCard.cardInfo.type != 3) || otherCard.cardInfo.id == 7 || otherCard.cardInfo.id == 17)
+                    ListOfOverlapped.Add(other.gameObject);
             }
             if (other.gameObject.layer == LayerMask.NameToLayer("InteractableFrame")) {
                 ListOfOverlappedFrame.Add(other.gameObject);
@@ -715,8 +784,10 @@ public class Card : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.transform.GetComponent<Card>() != null) {
-            ListOfOverlapped.Remove(other.gameObject);
+        Card otherCard = other.transform.GetComponent<Card>();
+        if (otherCard != null) {
+            if ((otherCard.cardInfo.type != 1 && otherCard.cardInfo.type != 2 && otherCard.cardInfo.type != 3) || otherCard.cardInfo.id == 7 || otherCard.cardInfo.id == 17)
+                ListOfOverlapped.Remove(other.gameObject);
         }
         if (other.gameObject.layer == LayerMask.NameToLayer("InteractableFrame")) {
             ListOfOverlappedFrame.Remove(other.gameObject);

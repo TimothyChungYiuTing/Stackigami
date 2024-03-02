@@ -22,6 +22,7 @@ public class BoardManager : MonoBehaviour
     public List<Battle> battleList = new();
 
     public GameObject curseFrame;
+    public InteractableFrame riftFrame;
 
     public bool oniDiscovered = false;
     public int stage = 0; //0: Start, 1: Pentagram discovered, 2: Rift 1 discovered
