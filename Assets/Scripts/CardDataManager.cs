@@ -13,6 +13,7 @@ public class CardInfo {
     public int sellEffect;
     public GameObject cardObj;
     public int currentHealth;
+    public int maxHealth;
     public int attack = 0;
     public int attackCD = 1;
     public int attr = 0;
@@ -27,6 +28,7 @@ public class CardInfo {
         sellPrice = cardDataArray[id].sellPrice;
         sellEffect = cardDataArray[id].sellEffect;
         currentHealth = cardDataArray[id].health;
+        maxHealth = cardDataArray[id].health;
         attack = cardDataArray[id].attack;
         attackCD = cardDataArray[id].attackCD;
         attr = cardDataArray[id].attr;

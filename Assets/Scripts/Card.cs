@@ -56,14 +56,31 @@ public class Card : MonoBehaviour
         boardManager = FindObjectOfType<BoardManager>();
         cardInfo = new CardInfo(id, cardDataManager.cardDatas.cardDataArray);
 
-        if (cardInfo.currentHealth == 0) {
+        if (id == 0) {
+            CardBG.color = Color.white;
+        } else {
+            AssignTypeStyle();
+        }
+
+        if (cardInfo.maxHealth == 0) {
             Text_Health.text = "";
             HealthTag.enabled = false;
         } else {
             Text_Health.text = cardInfo.currentHealth.ToString();
+            HealthTag.enabled = true;
         }
         Text_Name.text = cardInfo.name;
-        Text_Price.text = cardInfo.sellPrice.ToString();
+
+        if (cardInfo.type == 1 || cardInfo.type == 2 || cardInfo.type == 3) {
+            PriceTag.enabled = true;
+            if (cardInfo.attack > 0) {
+                Text_Price.text = cardInfo.sellPrice.ToString();
+            }
+        }
+        else {
+            PriceTag.enabled = true;
+            Text_Price.text = cardInfo.sellPrice.ToString();
+        }
 
         rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<BoxCollider2D>();
@@ -71,6 +88,31 @@ public class Card : MonoBehaviour
         ResetCard();
 
         Debug.LogError(stackedCards.Count);
+    }
+
+    private void AssignTypeStyle()
+    {
+        switch (cardInfo.type) {
+            case 0:
+                break;
+            case 1:
+                CardBG.color = new Color(0.7f, 0.9f, 1f, 1f);
+                break;
+            case 2:
+                CardBG.color = new Color(1f, 0.8f, 0.7f, 1f);
+                break;
+            case 3:
+                CardBG.color = new Color(1f, 0.7f, 0.95f, 1f);
+                break;
+            case 4:
+                CardBG.color = new Color(0f, 0f, 0f, 1f);
+                break;
+            case 5:
+                CardBG.color = new Color(0.8f, 1f, 0.95f, 1f);
+                break;
+            case 6:
+                break;
+        }
     }
 
     public void ResetCard()
@@ -85,7 +127,7 @@ public class Card : MonoBehaviour
     void Update()
     {
         if (isHost && combiningRecipe == null) {
-            Debug.Log("CombiningRecipe is null");
+            //Debug.Log("CombiningRecipe is null");
             if (RecipeExists(id, stackedCards, cardDataManager.recipeDatas.recipeDataArray)) {
                 //TODO: Start Combining
                 ProgressBG.SetActive(true);
@@ -291,7 +333,7 @@ public class Card : MonoBehaviour
             //Assign new stacks to each card
             prevCard.RecursivelyAddToStack(this);
 
-            Debug.LogError("ASDASDAD");
+            //Debug.LogError("ASDASDAD");
         }
 
         ListOfOverlapped.Clear();

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum InteractMode {Sell, Incant, Rift}
+public enum InteractMode {Sell, Incant, Inspiration, Rift}
 public class InteractableFrame : MonoBehaviour
 {
     public InteractMode interactMode;
@@ -30,9 +30,9 @@ public class InteractableFrame : MonoBehaviour
         Invoke("CollTriggerTrue", 0.3f);
         for (int i=0; i<5; i++) {
             if (Random.Range(0, 2) == 0)
-                CreateCard(0, transform.position);
+                CreateCard(0, transform.position + Vector3.back * 0.1f);
             else
-                CreateCard(Random.Range(2, 7), transform.position);
+                CreateCard(Random.Range(2, 7), transform.position + Vector3.back * 0.1f);
         }
     }
     

@@ -15,6 +15,7 @@ public class Gem : MonoBehaviour
     public TextMeshPro Text_Amount;
 
     private InteractableFrame incantFrame = null;
+    private InteractableFrame inspirationFrame = null;
 
     // Start is called before the first frame update
     void Start()
@@ -61,6 +62,13 @@ public class Gem : MonoBehaviour
                     incantFrame = null;
                 }
             }
+            else if (inspirationFrame != null) {
+                if (int.Parse(Text_Amount.text) >= 5) {
+                    Text_Amount.text = (int.Parse(Text_Amount.text) - 5).ToString();
+                    inspirationFrame.OpenPack();
+                    inspirationFrame = null;
+                }
+            }
         }
     }
 
@@ -79,6 +87,9 @@ public class Gem : MonoBehaviour
                 if (IF.interactMode == InteractMode.Incant) {
                     incantFrame = IF;
                 }
+                if (IF.interactMode == InteractMode.Inspiration) {
+                    inspirationFrame = IF;
+                }
             }
         }
     }
@@ -89,6 +100,9 @@ public class Gem : MonoBehaviour
             InteractableFrame IF = other.GetComponent<InteractableFrame>();
             if (IF.interactMode == InteractMode.Incant) {
                 incantFrame = null;
+            }
+            if (IF.interactMode == InteractMode.Inspiration) {
+                inspirationFrame = null;
             }
         }
     }
