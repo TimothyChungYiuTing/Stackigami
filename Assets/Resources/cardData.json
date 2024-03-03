@@ -235,8 +235,8 @@
             "sellPrice": 0,
             "sellEffect": -1,
             "attack": 1,
-            "attackCD": 1.6,
-            "health": 9,
+            "attackCD": 1.9,
+            "health": 5,
             "attr": 0,
             "drops": []
         },
@@ -259,7 +259,7 @@
             "sellPrice": 0,
             "sellEffect": -1,
             "attack": 1,
-            "attackCD": 1.2,
+            "attackCD": 1.1,
             "health": 8,
             "attr": 1,
             "drops": []
@@ -283,7 +283,7 @@
             "sellPrice": 0,
             "sellEffect": -1,
             "attack": 2,
-            "attackCD": 3.2,
+            "attackCD": 3.4,
             "health": 17,
             "attr": 1,
             "drops": []
@@ -307,7 +307,7 @@
             "sellPrice": 0,
             "sellEffect": 0,
             "attack": 1,
-            "attackCD": 4,
+            "attackCD": 3,
             "health": 0,
             "attr": 4,
             "drops": []
@@ -319,7 +319,7 @@
             "sellPrice": 0,
             "sellEffect": 0,
             "attack": 0,
-            "attackCD": 1,
+            "attackCD": 2,
             "health": 0,
             "attr": 1,
             "drops": []
@@ -379,7 +379,7 @@
             "sellPrice": 0,
             "sellEffect": -1,
             "attack": 2,
-            "attackCD": 2.2,
+            "attackCD": 1.3,
             "health": 12,
             "attr": 3,
             "drops": []
@@ -391,8 +391,8 @@
             "sellPrice": 0,
             "sellEffect": -1,
             "attack": 3,
-            "attackCD": 2.4,
-            "health": 8,
+            "attackCD": 2.1,
+            "health": 9,
             "attr": 0,
             "drops": [33]
         },
@@ -428,7 +428,7 @@
             "sellEffect": -1,
             "attack": 5,
             "attackCD": 2.6,
-            "health": 14,
+            "health": 21,
             "attr": 1,
             "drops": []
         },
@@ -446,7 +446,7 @@
         },
         {
             "id": 37,
-            "name": "Portal 1",
+            "name": "???",
             "type": 6,
             "sellPrice": 0,
             "sellEffect": -1,

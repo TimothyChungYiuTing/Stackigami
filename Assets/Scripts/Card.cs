@@ -159,6 +159,10 @@ public class Card : MonoBehaviour
             }
         }
 
+        if (id == 36) {
+            boardManager.AshiyaDouman_Defeated = true;
+        }
+
         CardDestroy(card);
     }
 

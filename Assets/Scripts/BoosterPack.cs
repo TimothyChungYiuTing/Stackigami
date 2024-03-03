@@ -8,6 +8,7 @@ public class BoosterPack : MonoBehaviour
     public List<Sprite> packSprites;
 
     private BoardManager boardManager;
+    private InGameCanvas inGameCanvas;
 
     public bool isDragging = false;
     private Rigidbody2D rb;
@@ -26,6 +27,7 @@ public class BoosterPack : MonoBehaviour
     void Start()
     {
         boardManager = FindObjectOfType<BoardManager>();
+        inGameCanvas = FindObjectOfType<InGameCanvas>();
         GetComponent<SpriteRenderer>().sprite = packSprites[packID];
         coll = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
@@ -54,11 +56,13 @@ public class BoosterPack : MonoBehaviour
                 else
                     packContents.Add(Random.Range(2, 7));
             }
-            packContents.Add(GetInspiration(boardManager.stage));
+
+            //Create an inspiration
+            packContents.Add(-1);
 
             //50% to create 1 more inspiration
             if (Random.Range(0, 2) == 0)
-                packContents.Add(GetInspiration(boardManager.stage));
+                packContents.Add(-1);
         }
         else if (packID == 2) {
             //4 Cards, Higher chance of better cards, with chances of summoning enemies
@@ -89,12 +93,6 @@ public class BoosterPack : MonoBehaviour
         }
 
         return packContents;
-    }
-
-    private int GetInspiration(int stage)
-    {
-        //TODO: Inspiration Recipe in negative index
-        return -1;
     }
 
     private void OnMouseDown()
@@ -174,7 +172,34 @@ public class BoosterPack : MonoBehaviour
             NewCard.GetComponent<Card>().id = cardID;
         }
         else {
-            //TODO: Create Inspiration
+            //Create Inspiration
+
+            //Fetch Available Undiscovered Inspirations
+            List<CardDataManager.RecipeData> AvailableRecipes = new();
+            AvailableRecipes.AddRange(boardManager.UndiscoveredRecipes_Stage[0]);
+
+            for (int i=1; i<3; i++) {
+                //Only allow higher level recipes if stage reached
+                if (boardManager.stage >= i) {
+                    AvailableRecipes.AddRange(boardManager.UndiscoveredRecipes_Stage[i]);
+                }
+            }
+
+            if (AvailableRecipes.Count > 0) {
+                CardDataManager.RecipeData randomRecipeData = AvailableRecipes[Random.Range(0, AvailableRecipes.Count)];
+
+                boardManager.DiscoveredRecipes.Add(randomRecipeData);
+                for (int i=0; i<3; i++) {
+                    boardManager.UndiscoveredRecipes_Stage[i].Remove(randomRecipeData);
+                }
+
+                //TODO: Show in UI
+                inGameCanvas.AddRecipe(boardManager.DiscoveredRecipes[^1]);
+
+            } else {
+                //TODO: Tell player that all Available Recipes are discovered
+                
+            }
         }
     }
 

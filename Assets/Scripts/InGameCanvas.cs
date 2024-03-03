@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -19,7 +20,10 @@ public class InGameCanvas : MonoBehaviour
     public float animTimeLength;
 
     public RectTransform recipeContent;
-    public List<RectTransform> Recipes;
+    public List<RectTransform> RecipeTransforms;
+
+    [Header("Instantiated")]
+    public GameObject recipePrefab;
     
     // Start is called before the first frame update
     void Start()
@@ -71,5 +75,29 @@ public class InGameCanvas : MonoBehaviour
             buttonRect.anchoredPosition = ButtonClose;
             Box.anchoredPosition = BoxClose;
         }
+    }
+
+    public void AddRecipe(CardDataManager.RecipeData recipeData)
+    {
+        //Instantiate new recipe UI
+        GameObject newRecipe = Instantiate(recipePrefab, recipeContent.transform.position, Quaternion.identity);
+        newRecipe.GetComponent<RectTransform>().SetParent(recipeContent.transform); //Assign parent
+
+        //Add to the list of recipe transforms
+        RecipeTransforms.Add(newRecipe.GetComponent<RectTransform>());
+
+        //Shift all existing recipes downwards (This makes newest recipes stay on top)
+        foreach(RectTransform rect in RecipeTransforms) {
+            rect.anchoredPosition += Vector2.down * 250f;
+        }
+
+        //Reposition new recipe
+        RecipeTransforms[^1].anchoredPosition = new Vector3(3.5f, -50f);
+        RecipeTransforms[^1].localScale = Vector3.one;
+        
+        //Resize the Content for smart navigation
+        recipeContent.sizeDelta = new Vector2(recipeContent.sizeDelta.x, 50f + 250f * RecipeTransforms.Count);
+
+        newRecipe.GetComponent<Recipe>().Setup(recipeData);
     }
 }

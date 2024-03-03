@@ -41,6 +41,7 @@ public class CardDataManager : MonoBehaviour
 {
     public TextAsset cardDataJSON;
     public TextAsset recipeDataJSON;
+    private BoardManager boardManager;
 
     //Card Data
 
@@ -106,6 +107,9 @@ public class CardDataManager : MonoBehaviour
         for (int i=0; i < recipeDatas.recipeDataArray.Length; i++) {
             recipeDatas.recipeDataArray[i].ingredients.Sort();
         }
+
+        boardManager = FindObjectOfType<BoardManager>();
+        boardManager.ReadUndiscoveredRecipes(recipeDatas.recipeDataArray);
     }
 
     // Update is called once per frame

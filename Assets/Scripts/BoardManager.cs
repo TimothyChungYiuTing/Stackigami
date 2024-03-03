@@ -26,6 +26,7 @@ public class BoardManager : MonoBehaviour
 
     public bool oniDiscovered = false;
     public int stage = 0; //0: Start, 1: Pentagram discovered, 2: Rift 1 discovered
+    public bool AshiyaDouman_Defeated = false;
 
 
     [Header("Instantiated")]
@@ -35,6 +36,10 @@ public class BoardManager : MonoBehaviour
     [Header("Battle")]
     public int BattleIDCounter = 0;
     public List<Battle> battleList = new();
+
+    [Header("Recipe Management")]
+    public List<CardDataManager.RecipeData>[] UndiscoveredRecipes_Stage = new List<CardDataManager.RecipeData>[3];
+    public List<CardDataManager.RecipeData> DiscoveredRecipes = new();
 
     public void StartBattle(Card goodCard, Card evilCard)
     {
@@ -111,7 +116,20 @@ public class BoardManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (AshiyaDouman_Defeated && AllEnemiesDefeated()) {
+            //TODO: Win Condition
+
+            Debug.LogError("WIN!");
+        }
+    }
+
+    private bool AllEnemiesDefeated()
+    {
+        foreach(Card card in existingCardsList) {
+            if (card.cardInfo.type == 2)
+                return false;
+        }
+        return true;
     }
 
     public Card GetOpponentCard(Card selfCard, int battleID)
@@ -139,5 +157,20 @@ public class BoardManager : MonoBehaviour
             return OpponentCards[Random.Range(0, OpponentCards.Count)];
         
         return null;
+    }
+
+    public void ReadUndiscoveredRecipes(CardDataManager.RecipeData[] recipeDatas) 
+    {
+        //Initialize
+        for (int i=0; i<UndiscoveredRecipes_Stage.Length; i++) {
+            UndiscoveredRecipes_Stage[i] = new();
+        }
+
+        //Put recipes into lists according to stage
+        DiscoveredRecipes = new() { recipeDatas[0] };
+
+        for (int i=1; i < recipeDatas.Length; i++) {
+            UndiscoveredRecipes_Stage[recipeDatas[i].recipeStage].Add(recipeDatas[i]);
+        }
     }
 }
