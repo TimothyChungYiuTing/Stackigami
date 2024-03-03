@@ -3803,7 +3803,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6625158351461890437, guid: 6b1e7cf292f8b394c9c64d1ca2af1142, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.94
+      value: 0.83
       objectReference: {fileID: 0}
     - target: {fileID: 6625158351461890437, guid: 6b1e7cf292f8b394c9c64d1ca2af1142, type: 3}
       propertyPath: m_LocalPosition.y
@@ -5240,7 +5240,7 @@ MonoBehaviour:
   PackPrefab: {fileID: 0}
   CardPrefab: {fileID: 7629507956167564247, guid: 6b1e7cf292f8b394c9c64d1ca2af1142, type: 3}
   isExploring: 0
-  riftNeededTime: 30
+  riftNeededTime: 40
   ProgressBG: {fileID: 2029535543}
   PossibleRiftOutcomes: 1d0000001e00000020000000
 --- !u!61 &1161465843

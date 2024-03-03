@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +39,7 @@ public class BoardManager : MonoBehaviour
     public void StartBattle(Card goodCard, Card evilCard)
     {
         //Start battle between 2 cards
-        Debug.Log("Battle started between " + goodCard.id + " & " + evilCard.id);
+            //Debug.Log("Battle started between " + goodCard.id + " & " + evilCard.id);
 
         GameObject createdBattleFrame;
 
@@ -65,6 +64,10 @@ public class BoardManager : MonoBehaviour
 
         //Increment the Battle ID counter
         BattleIDCounter++;
+
+        //Start repeating attacks
+        goodCard.RepeatAttack();
+        evilCard.RepeatAttack();
     }
 
     public void EndBattle(int battleID)
@@ -80,8 +83,16 @@ public class BoardManager : MonoBehaviour
         if (battleToEnd != null) {
             //Make the battleID of the goodCard and badCard -1
             foreach(Card participant in battleToEnd.participants) {
+                participant.lastTimeHealed = Time.time;
+
                 participant.battleID = -1;
                 participant.rb.bodyType = RigidbodyType2D.Dynamic;
+
+                participant.StopCoroutine("Hit");
+                participant.CancelInvoke("Attack");
+                participant.transform.localScale = Vector3.one;
+                participant.transform.localRotation = Quaternion.identity;
+                participant.HurtFilter.color = new Color(participant.HurtFilter.color.r, participant.HurtFilter.color.g, participant.HurtFilter.color.b, 0f);
             }
             //Remove the BattleFrame
             Destroy(battleToEnd.battleFrame);
@@ -101,5 +112,32 @@ public class BoardManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public Card GetOpponentCard(Card selfCard, int battleID)
+    {
+        //Find the battle with this battleID
+        Battle targetBattle = null;
+
+        foreach(Battle battle in battleList) {
+            if (battle.id == battleID) {
+                targetBattle = battle;
+            }
+        }
+        
+        List<Card> OpponentCards = new();
+
+        //Return all opponent cards
+        foreach (Card participant in targetBattle.participants) {
+            if (participant.cardInfo.type != selfCard.cardInfo.type) {
+                OpponentCards.Add(participant);
+            }
+        }
+
+        //Return one of the opponent cards
+        if (OpponentCards.Count > 0)
+            return OpponentCards[Random.Range(0, OpponentCards.Count)];
+        
+        return null;
     }
 }

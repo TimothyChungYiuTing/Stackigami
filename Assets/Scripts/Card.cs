@@ -30,7 +30,7 @@ public class Card : MonoBehaviour
 
     private Vector3 dragStartPos;
     private Vector3 dragStartMousePos;
-    private float lastTimeHealed = 0f;
+    [HideInInspector] public float lastTimeHealed = 0f;
 
     [Header("Stats/Progress")]
     public GameObject ProgressBG;
@@ -48,9 +48,15 @@ public class Card : MonoBehaviour
     [Header("Instantiated")]
     public GameObject CardPrefab;
     public GameObject GemMoney;
+    public GameObject DamagePrefab;
 
     [Header("Battle")]
     public int battleID = -1; //The ID of the battle they are engaging in
+    private float nextAttackDelay = 0;
+
+    public SpriteRenderer HurtFilter;
+    public SpriteRenderer WitherFilter;
+    public SpriteRenderer FrozenFilter;
 
     [Header("Rift")]
     private bool inRift = false;
@@ -116,12 +122,25 @@ public class Card : MonoBehaviour
             Text_Price.text = cardInfo.sellPrice.ToString();
         }
 
+        nextAttackDelay = cardInfo.attackCD;
+
         //Ensure card is solo card (unattached)
         ResetCard();
     }
 
     private void Die(Card card)
     {
+        //Remove this from other cards' lists
+        foreach (Card existingCard in boardManager.existingCardsList) {
+            existingCard.ListOfOverlapped.Remove(card.gameObject);
+            existingCard.ListOfOverlappedEnemies.Remove(card.gameObject);
+        }
+
+        //Remove from any participating battles
+        if (battleID != -1) {
+            boardManager.EndBattle(battleID);
+        }
+
         //Drops
         if (card.cardInfo.drops != null && card.cardInfo.drops.Count > 0) {
             foreach(int id in card.cardInfo.drops)
@@ -375,6 +394,74 @@ public class Card : MonoBehaviour
         }
     }
 
+    public void RepeatAttack()
+    {
+        //Attack opponent player repeatedly
+        InvokeRepeating("Attack", nextAttackDelay, cardInfo.attackCD);
+    }
+
+    private void Attack()
+    {
+        StartCoroutine(Hit(boardManager.GetOpponentCard(this, battleID), cardInfo.attackCD));
+    }
+
+    private IEnumerator Hit(Card opponentCard, float attackCD)
+    {
+        nextAttackDelay = attackCD;
+
+        float timer = 0f;
+        float t;
+
+        int opponentDirMult = (opponentCard.transform.position.x > transform.position.x)?1:-1;
+        float originalXPos = transform.position.x;
+        float originalYPos = transform.position.y;
+        float originalZPos = transform.position.z;
+
+        while (timer < 0.3f) {
+            nextAttackDelay -= Time.deltaTime;
+
+            t = Mathf.SmoothStep(0f, 1f, timer);
+            t = Mathf.SmoothStep(0f, 1f, t);
+            
+            //Animation
+            transform.position = new Vector3(originalXPos + Mathf.Sin(t * Mathf.PI) * 4f * opponentDirMult, originalYPos + Mathf.Sin(t * Mathf.PI) * 0.8f, originalZPos - Mathf.Sin(t * Mathf.PI) * 0.2f);
+            opponentCard.transform.localScale = Vector3.one * (1f + Mathf.Sin(t * Mathf.PI) * 0.3f);
+            opponentCard.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * Mathf.PI) * 60f * opponentDirMult);
+            
+            if (timer > 0.15f)
+                opponentCard.HurtFilter.color = new Color(opponentCard.HurtFilter.color.r, opponentCard.HurtFilter.color.g, opponentCard.HurtFilter.color.b, 0.6f);
+            
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        //Reset position and scales
+        transform.position = new Vector3(originalXPos, originalYPos, originalZPos);
+        opponentCard.transform.localScale = Vector3.one;
+        opponentCard.transform.localRotation = Quaternion.identity;
+        opponentCard.HurtFilter.color = new Color(opponentCard.HurtFilter.color.r, opponentCard.HurtFilter.color.g, opponentCard.HurtFilter.color.b, 0f);
+
+        //Deal damage, Instantiate DamagePrefab
+        opponentCard.cardInfo.currentHealth -= cardInfo.attack;
+        GameObject damageVisual = Instantiate(DamagePrefab, opponentCard.transform.position + Vector3.back * 0.4f + Vector3.right * Random.Range(-0.6f, 0.6f) + Vector3.up * Random.Range(-1.2f, 1.2f), Quaternion.Euler(0f, 0f, Random.Range(-45f, 45f)));
+        damageVisual.GetComponent<Damage>().side = cardInfo.type;
+        damageVisual.GetComponent<Damage>().damage = cardInfo.attack;
+        
+        //Keep lowering nextAttackDelay
+        timer = 0f;
+
+        while (timer < attackCD - 0.35f) {
+            nextAttackDelay -= Time.deltaTime;
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        nextAttackDelay = 0f;
+
+        //StartCoroutine(Hit(opponentCard, attackCD));
+    }
+
+
     public void ResetCard()
     {
         //Reset card status to a solo card
@@ -431,6 +518,13 @@ public class Card : MonoBehaviour
                     lastTimeHealed = Time.time;
                 }
             }
+        }
+
+        //Make card transform normal if not in battle
+        if (battleID == -1) {
+            transform.localScale = Vector3.one;
+            transform.localRotation = Quaternion.identity;
+            HurtFilter.color = new Color(HurtFilter.color.r, HurtFilter.color.g, HurtFilter.color.b, 0f);
         }
 
         //Warning: Debug Only Section
@@ -617,6 +711,8 @@ public class Card : MonoBehaviour
             StartBattle(this, closestBattleableEnemy);
             return false;
         }
+
+        //TODO: Spell Interactions
 
         if (ListOfOverlappedFrame.Count > 0) {
             InteractableFrame OverlappedFrame = ListOfOverlappedFrame[0].GetComponent<InteractableFrame>();
@@ -893,25 +989,8 @@ public class Card : MonoBehaviour
     public void StartBattle(Card goodCard, Card evilCard)
     {
         goodCard.ResetCombiningState();
-
-        //Remove from top stack
-        if (!goodCard.isHost) {
-            goodCard.isHost = true;
-
-            goodCard.GetHost().ResetCombiningState();
-            
-            //Recursively remove previous cards' partial stackedCards
-
-            goodCard.prevCard.RecursivelyRemoveFromStack(goodCard);
-            goodCard.prevCard = null;
-        }
-
-        //Remove bottom stack
-        if (goodCard.stackedCards != null && goodCard.stackedCards.Count > 0) {
-            goodCard.stackedCards[0].isHost = true;
-            goodCard.stackedCards[0].prevCard = null;
-            goodCard.stackedCards.Clear();
-        }
+        
+        goodCard.IsolateCard();
 
         //Remove from rift
         if (goodCard.inRift) {
@@ -939,5 +1018,27 @@ public class Card : MonoBehaviour
 
         //Start battle between 2 cards
         boardManager.StartBattle(goodCard, evilCard);
+    }
+
+    public void IsolateCard()
+    {
+        //Remove from top stack
+        if (!isHost) {
+            isHost = true;
+
+            GetHost().ResetCombiningState();
+            
+            //Recursively remove previous cards' partial stackedCards
+
+            prevCard.RecursivelyRemoveFromStack(this);
+            prevCard = null;
+        }
+
+        //Remove bottom stack
+        if (stackedCards != null && stackedCards.Count > 0) {
+            stackedCards[0].isHost = true;
+            stackedCards[0].prevCard = null;
+            stackedCards.Clear();
+        }
     }
 }
