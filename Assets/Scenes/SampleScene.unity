@@ -159,6 +159,8 @@ MonoBehaviour:
   riftFrame: {fileID: 1161465842}
   oniDiscovered: 0
   stage: 0
+  BattleFramePrefab: {fileID: 2656491894021133196, guid: a7b8bd1abb877a14bafb1e3510d2248c, type: 3}
+  BattleIDCounter: 0
 --- !u!4 &10871725
 Transform:
   m_ObjectHideFlags: 0
@@ -3801,11 +3803,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6625158351461890437, guid: 6b1e7cf292f8b394c9c64d1ca2af1142, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.6
+      value: -0.94
       objectReference: {fileID: 0}
     - target: {fileID: 6625158351461890437, guid: 6b1e7cf292f8b394c9c64d1ca2af1142, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -5.83
+      value: 6.71
       objectReference: {fileID: 0}
     - target: {fileID: 6625158351461890437, guid: 6b1e7cf292f8b394c9c64d1ca2af1142, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5238,7 +5240,7 @@ MonoBehaviour:
   PackPrefab: {fileID: 0}
   CardPrefab: {fileID: 7629507956167564247, guid: 6b1e7cf292f8b394c9c64d1ca2af1142, type: 3}
   isExploring: 0
-  riftNeededTime: 20
+  riftNeededTime: 30
   ProgressBG: {fileID: 2029535543}
   PossibleRiftOutcomes: 1d0000001e00000020000000
 --- !u!61 &1161465843
@@ -9141,6 +9143,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Damage
       objectReference: {fileID: 0}
+    - target: {fileID: 2180790251359843791, guid: fe733abdeb3052c49a8e829bcc8615db, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3934206331178315150, guid: fe733abdeb3052c49a8e829bcc8615db, type: 3}
       propertyPath: m_RootOrder
       value: 29
@@ -9188,10 +9194,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3496763033962684435, guid: fe733abdeb3052c49a8e829bcc8615db, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fe733abdeb3052c49a8e829bcc8615db, type: 3}
 --- !u!1001 &5771131508825183081
 PrefabInstance:

@@ -83,7 +83,7 @@ public class InteractableFrame : MonoBehaviour
     public void UnlockRift()
     {
         Text_Words.text = "Seimei's Palace";
-        Text_Words.transform.localPosition = new Vector3(0f, 1.8f, -0.002f);
+        Text_Words.transform.localPosition = new Vector3(0f, 1.8f, -3f);
         coll.enabled = true;
         foreach (GameObject hint in RiftPositionsHint) {
             hint.SetActive(true);

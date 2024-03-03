@@ -21,10 +21,11 @@ public class Card : MonoBehaviour
     public bool stackable = true;
     public bool draggable = true;
     public bool isDragging = false;
-    private BoxCollider2D coll;
-    private Rigidbody2D rb;
+    [HideInInspector] public BoxCollider2D coll;
+    [HideInInspector] public Rigidbody2D rb;
 
     public List<GameObject> ListOfOverlapped = new();
+    public List<GameObject> ListOfOverlappedEnemies = new();
     public List<GameObject> ListOfOverlappedFrame = new();
 
     private Vector3 dragStartPos;
@@ -76,11 +77,7 @@ public class Card : MonoBehaviour
             coll.enabled = false;
             Destroy(gameObject);
         }
-        else if (id == 0) {
-            CardBG.color = Color.white;
-        } else {
-            AssignTypeStyle();
-            
+        else {
             //Stage management
             if (id == 15 && !boardManager.oniDiscovered) {
                 boardManager.oniDiscovered = true;
@@ -90,10 +87,15 @@ public class Card : MonoBehaviour
             } else if (id == 28 && boardManager.stage == 1) {
                 boardManager.stage++;
             }
-        }
 
+            //Assign Color & Style
+            AssignTypeStyle();
+        }
+        
+        //Assign Sprites
         AssignContentSprite_And_BGSprites();
 
+        //Assign Text & Tag Stats
         if (cardInfo.maxHealth == 0) {
             Text_Health.text = "";
             HealthTag.enabled = false;
@@ -114,9 +116,8 @@ public class Card : MonoBehaviour
             Text_Price.text = cardInfo.sellPrice.ToString();
         }
 
+        //Ensure card is solo card (unattached)
         ResetCard();
-
-        //Debug.LogError(stackedCards.Count);
     }
 
     private void Die(Card card)
@@ -153,9 +154,13 @@ public class Card : MonoBehaviour
 
     private void AssignTypeStyle()
     {
+        //Assign different styles depending on Type
         switch (cardInfo.type) {
-            case 0:
-                if (cardInfo.id <= 6) {
+            case 0: //Normal
+                if (cardInfo.id == 0) {
+                    CardBG.color = Color.white;
+                }
+                else if (cardInfo.id <= 6) {
                     CardBG.color = new Color(1f, 1f, 0.55f, 1f);
                 }
                 else {
@@ -168,7 +173,7 @@ public class Card : MonoBehaviour
                 CharacterSpriteRenderer.enabled = false;
                 PositionYValues(-0.1f);
                 break;
-            case 1:
+            case 1: //Ally
                 if (cardInfo.id == 7) {
                     CardBG.color = new Color(0.54f, 0.46f, 0.12f, 0.8f);
                     ChangeDrawnColor(new Color(1f, 0.97f, 0.87f, 0.9f), Color.black, Color.white);
@@ -188,7 +193,7 @@ public class Card : MonoBehaviour
                 AssignCharacterSprite();
                 PositionYValues(-0.27f);
                 break;
-            case 2:
+            case 2: //Enemy
                 CardBG.color = new Color(1f, 0.75f, 0.9f, 0.9f);
                 ChangeDrawnColor(new Color(0.8f, 0.2f, 0.3f, 0.9f), Color.white, Color.black);
                 draggable = false;
@@ -200,7 +205,7 @@ public class Card : MonoBehaviour
 
                 InvokeRepeating("ChasePlayers", 1.5f, cardInfo.attackCD * 1.5f + 0.5f);
                 break;
-            case 3:
+            case 3: //Spell
                 CardBG.color = new Color(0.82f, 0.54f, 0.96f, 1f);
                 ChangeDrawnColor(new Color(1f, 0.87f, 1f, 0.9f), Color.black, Color.black);
                 draggable = true;
@@ -209,7 +214,7 @@ public class Card : MonoBehaviour
                 CharacterSpriteRenderer.enabled = false;
                 PositionYValues(-0.1f);
                 break;
-            case 4:
+            case 4: //Aura
                 CardBG.color = new Color(0f, 0f, 0f, 1f);
                 ChangeDrawnColor(new Color(1f, 0.8f, 0.8f, 0.9f), Color.black, Color.white);
                 draggable = true;
@@ -218,7 +223,7 @@ public class Card : MonoBehaviour
                 CharacterSpriteRenderer.enabled = false;
                 PositionYValues(-0.1f);
                 break;
-            case 5:
+            case 5: //Rift
                 CardBG.color = new Color(0.66f, 92f, 0.77f, 1f);
                 ChangeDrawnColor(new Color(0.05f, 0.45f, 0.21f, 0.9f), Color.white, Color.black);
                 draggable = true;
@@ -227,7 +232,7 @@ public class Card : MonoBehaviour
                 CharacterSpriteRenderer.enabled = false;
                 PositionYValues(-0.1f);
                 break;
-            case 6:
+            case 6: //Unused
                 CardBG.color = new Color(1f, 1f, 0.55f, 1f);
                 ChangeDrawnColor(new Color(0.77f, 0.22f, 0.07f, 0.9f), Color.white, new Color(0.32f, 0f, 0f, 1f));
                 draggable = false;
@@ -241,6 +246,7 @@ public class Card : MonoBehaviour
 
     private void ChangeDrawnColor(Color colorWeak, Color colorStats, Color colorStrong)
     {
+        //Color cards with 3 colors
         Text_Name.color = colorStrong;
         CardFrame.color = colorWeak;
         CardOuterFrame.color = colorWeak;
@@ -264,6 +270,7 @@ public class Card : MonoBehaviour
 
     private void PositionYValues(float y)
     {
+        //Reposition y localPosition
         ContentSpriteRenderer.transform.localPosition = new Vector3(ContentSpriteRenderer.transform.localPosition.x, y, ContentSpriteRenderer.transform.localPosition.z);
         CharacterSpriteRenderer.transform.localPosition = new Vector3(CharacterSpriteRenderer.transform.localPosition.x, y, CharacterSpriteRenderer.transform.localPosition.z);
     }
@@ -309,13 +316,13 @@ public class Card : MonoBehaviour
     private void AssignCharacterSprite()
     {
         Sprite sprite;
-        if (cardInfo.id == 17)
-            sprite = boardManager.cardSpritesScript.characterSprites[0];
-        else if (cardInfo.type == 1)
-            sprite = boardManager.cardSpritesScript.characterSprites[1];
-        else
-            sprite = boardManager.cardSpritesScript.characterSprites[2];
-
+        if (cardInfo.id == 17) //Puppet
+            sprite = boardManager.cardSpritesScript.characterSprites[0]; //Puppet without memo
+        else if (cardInfo.type == 1) //Puppet with memo - Ally
+            sprite = boardManager.cardSpritesScript.characterSprites[1]; //Puppet with memo
+        else //Enemy
+            sprite = boardManager.cardSpritesScript.characterSprites[2]; //Black Puppet
+        
         if (sprite != null) {
             CharacterSpriteRenderer.enabled = true;
             CharacterSpriteRenderer.sprite = sprite;
@@ -334,14 +341,17 @@ public class Card : MonoBehaviour
 
     private IEnumerator ChaseMotion()
     {
+        //Motion for 1 Dash Action
         float timer = 0f;
         float t;
 
+        //Get closest Attackable Ally as Target
         Card closestAttackableCard = null;
         float distance = 9999f;
 
         foreach (Card existingCard in boardManager.existingCardsList) {
-            if (existingCard.cardInfo.type == 1) {
+            if (existingCard.cardInfo.type == 1 && existingCard.battleID == -1) {
+                //Target must not be in battle
                 float tempDistance = Vector2.Distance(transform.position, existingCard.transform.position);
                 if (tempDistance < distance) {
                     distance = tempDistance;
@@ -367,10 +377,13 @@ public class Card : MonoBehaviour
 
     public void ResetCard()
     {
+        //Reset card status to a solo card
         isHost = true;
         prevCard = null;
         stackedCards.Clear();
         combiningRecipe = null;
+        battleID = -1;
+        //Debug.LogError("Reset Card " + gameObject.name);
     }
 
     // Update is called once per frame
@@ -395,10 +408,12 @@ public class Card : MonoBehaviour
             coll.size = new Vector2(1.7f, 0.6f);
         }
 
+        //Keep updating stack's transform.position
         if (isHost) {
             RestackPosition();
         }
 
+        //Keep updating currentHealth info
         if (cardInfo.type == 1 || cardInfo.type == 2) {
             Text_Health.text = cardInfo.currentHealth.ToString();
             
@@ -408,7 +423,7 @@ public class Card : MonoBehaviour
             }
         }
         
-
+        //Heal every 10 sec (If not in battle)
         if (cardInfo.type == 1 && battleID == -1) {
             if (Time.time - lastTimeHealed > 10f) {
                 if (cardInfo.currentHealth < cardInfo.maxHealth) {
@@ -418,7 +433,7 @@ public class Card : MonoBehaviour
             }
         }
 
-        //Debug only
+        //Warning: Debug Only Section
         if (Input.GetKeyDown(KeyCode.H)) {
             cardInfo.currentHealth = 0;
         }
@@ -432,6 +447,7 @@ public class Card : MonoBehaviour
 
     private IEnumerator Craft(CardDataManager.RecipeData recipe)
     {
+        //Craft recipe action
         float timer = 0;
         Vector3 fromPos = new Vector3(-0.45f, 0f, -0.1f);
         Vector3 toPos = new Vector3(0f, 0f, -0.1f);
@@ -440,6 +456,7 @@ public class Card : MonoBehaviour
 
         Transform ProgressBarTransform = ProgressBG.transform.GetChild(0);
         while(timer < recipe.time) {
+            //Progress bar visualization
             ProgressBarTransform.localPosition = Vector3.Lerp(fromPos, toPos, timer/recipe.time);
             ProgressBarTransform.localScale = Vector3.Lerp(fromScale, toScale, timer/recipe.time);
 
@@ -447,10 +464,14 @@ public class Card : MonoBehaviour
             yield return null;
         }
 
+        //Recipe Complete
         ProgressBG.SetActive(false);
         combiningRecipe = null;
 
+        //Create Card
         CreateCard(recipe.GetRandomResultID());
+
+        //Destroy Ingredients
         foreach (Card card in stackedCards) {
             if (recipe.protect.Contains(card.id)) {
                 card.ResetCard();
@@ -470,6 +491,7 @@ public class Card : MonoBehaviour
 
     private void ResetCombiningState()
     {
+        //Reset combining progress & Hide progress bar
         StopAllCoroutines();
         ProgressBG.SetActive(false);
         combiningRecipe = null;
@@ -493,14 +515,17 @@ public class Card : MonoBehaviour
             dragStartPos = transform.position;
             dragStartMousePos = GetMousePos();
             
+            //Remove from any participating battles
+            if (battleID != -1) {
+                boardManager.EndBattle(battleID);
+            }
+            
             //Remove from rift if original is from rift
             rb.bodyType = RigidbodyType2D.Dynamic;
             if (inRift) {
                 inRift = false;
                 RemoveFromRift(riftPos);
                 riftPos = -1;
-
-                //TODO: Stop exploring
             }
         }
     }
@@ -530,6 +555,8 @@ public class Card : MonoBehaviour
             transform.position = dragStartPos + GetMousePos() - dragStartMousePos;
             transform.position = new Vector3(transform.position.x, transform.position.y, -5f);
             isDragging = true;
+            
+            //Set CardStack to trigger state
             SetWholeStackIsTrigger(true);
         }
     }
@@ -538,7 +565,8 @@ public class Card : MonoBehaviour
     {
         if (draggable) {
             if (isDragging) {
-                //Stack Check, and Stack
+                //ALL IN ONE FUNCTION:
+                //Joining Battle, Selling Cards, Joining Rift, Stack Effects ----- StackToClosestCollided()
                 if (StackToClosestCollided()) {
                     isHost = false;
                     GetHost().RestackPosition();
@@ -551,7 +579,8 @@ public class Card : MonoBehaviour
                 transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.y * 0.1f - 2.5f);
 
                 RestackPosition();
-
+                
+                //Set CardStack back to collidable state
                 SetWholeStackIsTrigger(false);
             }
         }
@@ -559,6 +588,7 @@ public class Card : MonoBehaviour
 
     public void SetWholeStackIsTrigger(bool mode)
     {
+        //Toggle the TriggerMode of: this and its stackedCards 
         coll.isTrigger = mode;
 
         foreach (Card card in stackedCards) {
@@ -568,6 +598,7 @@ public class Card : MonoBehaviour
 
     public void RestackPosition()
     {
+        //Readjust the positioning of stacked cards
         int i = 0;
         foreach(Card stackedCard in stackedCards) {
             i++;
@@ -577,36 +608,43 @@ public class Card : MonoBehaviour
 
     private bool StackToClosestCollided()
     {
+        //Enemy Interactions
+        if (cardInfo.type == 1 && battleID == -1 && ListOfOverlappedEnemies.Count > 0 && GetClosestBattleableEnemy(ListOfOverlappedEnemies) != null) {
+            //Get Closest Available Enemy
+            Card closestBattleableEnemy = GetClosestBattleableEnemy(ListOfOverlappedEnemies);
+            
+            //Start battle
+            StartBattle(this, closestBattleableEnemy);
+            return false;
+        }
+
         if (ListOfOverlappedFrame.Count > 0) {
             InteractableFrame OverlappedFrame = ListOfOverlappedFrame[0].GetComponent<InteractableFrame>();
             //Sell Or Buy
             if (OverlappedFrame.interactMode == InteractMode.Sell) {
-                int sumOfSold = 0;
                 List<Card> ToBeSoldList = new();
-
-                if (cardInfo.sellEffect != -1) {
-                    sumOfSold += cardInfo.sellPrice;
-                }
-
+                
                 foreach(Card stackedCard in stackedCards) {
                     if (stackedCard.cardInfo.sellEffect != -1) {
-                        sumOfSold += stackedCard.cardInfo.sellPrice;
+                        //Record sellable stacked cards
                         ToBeSoldList.Add(stackedCard);
                     }
                 }
-
-                //boardManager.gem.Text_Amount.text = (int.Parse(boardManager.gem.Text_Amount.text) + sumOfSold).ToString();
+                
+                //Separate cards from each other to prevent bugs
                 foreach(Card stackedCard in stackedCards) {
                     stackedCard.ResetCard();
                 }
                 ResetCard();
 
+                //Sell all recorded sellable stacked cards
                 foreach(Card ToBeSold in ToBeSoldList) {
                     InstantiateMoney(ToBeSold);
                     CardDestroy(ToBeSold);
                 }
 
                 if (cardInfo.sellEffect != -1) {
+                    //Check if current card is sellable, then sell it if true
                     InstantiateMoney(this);
                     CardDestroy(this);
                 }
@@ -617,57 +655,64 @@ public class Card : MonoBehaviour
                 if (cardInfo.type == 1 && cardInfo.id != 17 && stackedCards.Count == 0) { //If non-puppet ally only
                     if (OverlappedFrame.riftCards[0] == null) {
                         OverlappedFrame.riftCards[0] = this;
+                        //Make Kinematic so that it doesn't get pushed
                         rb.bodyType = RigidbodyType2D.Kinematic;
+                        //Adjust positioning (Left)
                         transform.position = OverlappedFrame.transform.position + Vector3.down * 0.3f + Vector3.left * 2.5f;
                         
+                        //Set inRift status and position inside the rift
                         inRift = true;
                         riftPos = 0;
-                        
-                        //TODO: Start exploring
                     }
                     else if (OverlappedFrame.riftCards[1] == null) {
                         OverlappedFrame.riftCards[1] = this;
+                        //Make Kinematic so that it doesn't get pushed
                         rb.bodyType = RigidbodyType2D.Kinematic;
+                        //Adjust positioning (Center)
                         transform.position = OverlappedFrame.transform.position + Vector3.down * 0.3f;
                         
+                        //Set inRift status and position inside the rift
                         inRift = true;
                         riftPos = 1;
-                        
-                        //TODO: Start exploring
                     }
                     else if (OverlappedFrame.riftCards[2] == null) {
                         OverlappedFrame.riftCards[2] = this;
+                        //Make Kinematic so that it doesn't get pushed
                         rb.bodyType = RigidbodyType2D.Kinematic;
+                        //Adjust positioning (Right)
                         transform.position = OverlappedFrame.transform.position + Vector3.down * 0.3f + Vector3.right * 2.5f;
                         
+                        //Set inRift status and position inside the rift
                         inRift = true;
                         riftPos = 2;
-                        
-                        //TODO: Start exploring
                     }
                 }
                 ListOfOverlappedFrame.Clear();
             }
 
             ListOfOverlapped.Clear();
+            ListOfOverlappedEnemies.Clear();
             return false;
         }
 
         //Stack
         if ((cardInfo.type != 1 && cardInfo.type != 2 && cardInfo.type != 3) || cardInfo.id == 7 || cardInfo.id == 17) {
             //Stackable type of card
+
+            //Get closest stackable card
             float distance = 9999f;
             Card closestCard = null;
 
             foreach (GameObject cardGameObject in ListOfOverlapped) {
                 float tempDistance = Vector2.Distance(transform.position, cardGameObject.transform.position);
-                if (tempDistance < distance) {
+                //Stackable card cannot be in Battle & cannot be in Rift
+                if (tempDistance < distance && cardGameObject.GetComponent<Card>().battleID == -1 && !cardGameObject.GetComponent<Card>().inRift) {
                     distance = tempDistance;
-                    closestCard = cardGameObject.GetComponent<Card>();;
+                    closestCard = cardGameObject.GetComponent<Card>();
                 }
             }
             Card hostCard = null;
-
+            
             if (closestCard != null) {
                 hostCard = closestCard.GetHost();
 
@@ -683,7 +728,9 @@ public class Card : MonoBehaviour
                 hostCard.ResetCombiningState();
             }
 
+            //Clear overlapping memory
             ListOfOverlapped.Clear();
+            ListOfOverlappedEnemies.Clear();
             ListOfOverlappedFrame.Clear();
 
             if (prevCard != null)
@@ -696,8 +743,26 @@ public class Card : MonoBehaviour
         }
     }
 
+    private Card GetClosestBattleableEnemy(List<GameObject> listOfOverlappedEnemies)
+    {
+        //Gets the closest enemy that isn't in battle
+        float distance = 9999f;
+        Card closestEnemyCard = null;
+
+        foreach (GameObject enemyCardGameObject in listOfOverlappedEnemies) {
+            float tempDistance = Vector2.Distance(transform.position, enemyCardGameObject.transform.position);
+            if (tempDistance < distance && enemyCardGameObject.GetComponent<Card>().battleID == -1) {
+                distance = tempDistance;
+                closestEnemyCard = enemyCardGameObject.GetComponent<Card>();;
+            }
+        }
+
+        return closestEnemyCard;
+    }
+
     private void InstantiateMoney(Card toBeSold)
     {
+        //Instantiates tiny money gems that fly to the large gem
         for (int i=0; i<toBeSold.cardInfo.sellPrice; i++) {
             Instantiate(GemMoney, toBeSold.transform.position + Random.Range(-0.1f, 0.1f) * Vector3.up + Random.Range(-0.1f, 0.1f) * Vector3.right, Quaternion.identity);
         }
@@ -705,11 +770,14 @@ public class Card : MonoBehaviour
 
     public void RecursivelyRemoveFromStack(Card removedCard)
     {
+        //Remove the target from the stack
         stackedCards.Remove(removedCard);
+        //Remove the target's stack from the stack
         foreach (Card removedCard_StackedCard in removedCard.stackedCards) {
             stackedCards.Remove(removedCard_StackedCard);
         }
 
+        //Repeat the process for the previous card, removing the TARGET card and its stack
         prevCard?.RecursivelyRemoveFromStack(removedCard);
 
         return;
@@ -719,11 +787,14 @@ public class Card : MonoBehaviour
     {
         stackedCards.Clear();
 
+        //Add the target card to the stack
         stackedCards.Add(addedCard);
+        //Add the target card's stack to the stack
         foreach (Card addedCard_StackedCard in addedCard.stackedCards) {
             stackedCards.Add(addedCard_StackedCard);
         }
 
+        //Repeat the process for the previous card, adding the CURRENT card and its stack
         prevCard?.RecursivelyAddToStack(this);
 
         return;
@@ -731,6 +802,8 @@ public class Card : MonoBehaviour
 
     public Card GetHost()
     {
+        //Gets the host card
+        //by Recursively finding the previous card
         if (prevCard == null)
             return this;
         return prevCard.GetHost();
@@ -744,6 +817,7 @@ public class Card : MonoBehaviour
     }
 
     private bool RecipeExists(int id, List<Card> stackedCards, CardDataManager.RecipeData[] recipeDataArray) {
+        //Check if the Recipe of the current stack exists in the JSON data array
         List<int> ingredientList = new();
         ingredientList.Add(id);
         foreach (Card card in stackedCards) {
@@ -752,6 +826,7 @@ public class Card : MonoBehaviour
         ingredientList.Sort(); //Sort in ascending order
 
         for (int i=0; i < recipeDataArray.Length; i++) {
+            //The 2 arrays must be identical
             if (ingredientList.SequenceEqual(recipeDataArray[i].ingredients)) {
                 combiningRecipe = recipeDataArray[i];
                 return true;
@@ -762,33 +837,41 @@ public class Card : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        Card otherCard = other.transform.GetComponent<Card>();
         if (isDragging) {
-            //Debug.LogError(other.gameObject);
-            Card otherCard = other.transform.GetComponent<Card>();
+            //Record Stackable Cards
             if (otherCard != null && otherCard.stackable && !stackedCards.Contains(otherCard)) {
-                //Debug.LogError("Overlapping Card!");
                 if ((otherCard.cardInfo.type != 1 && otherCard.cardInfo.type != 2 && otherCard.cardInfo.type != 3) || otherCard.cardInfo.id == 7 || otherCard.cardInfo.id == 17)
                     ListOfOverlapped.Add(other.gameObject);
             }
+
+            //Record Ememies
+            if (otherCard != null && otherCard.cardInfo.type == 2) {
+                ListOfOverlappedEnemies.Add(other.gameObject);
+            }
+
+            //Record Frames
             if (other.gameObject.layer == LayerMask.NameToLayer("InteractableFrame")) {
                 ListOfOverlappedFrame.Add(other.gameObject);
             }
-        }
-
-        if (cardInfo.type == 2) {
-            Card otherCard = other.transform.GetComponent<Card>();
-            if (otherCard != null)
-                boardManager.StartBattle(otherCard, this);
         }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
+        //Record Stackable Cards
         Card otherCard = other.transform.GetComponent<Card>();
         if (otherCard != null) {
             if ((otherCard.cardInfo.type != 1 && otherCard.cardInfo.type != 2 && otherCard.cardInfo.type != 3) || otherCard.cardInfo.id == 7 || otherCard.cardInfo.id == 17)
                 ListOfOverlapped.Remove(other.gameObject);
         }
+
+        //Record Ememies
+        if (otherCard != null && otherCard.cardInfo.type == 2) {
+            ListOfOverlappedEnemies.Remove(other.gameObject);
+        }
+
+        //Record Frames
         if (other.gameObject.layer == LayerMask.NameToLayer("InteractableFrame")) {
             ListOfOverlappedFrame.Remove(other.gameObject);
         }
@@ -797,10 +880,64 @@ public class Card : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (cardInfo.type == 2) {
+        //Check from Ally cards if any collisions with enemies
+            //(Check from Ally because in case Ally is in rift and is Kinematic)
+        if (cardInfo.type == 1 && battleID == -1) {
             Card otherCard = other.transform.GetComponent<Card>();
-            if (otherCard != null)
-                boardManager.StartBattle(otherCard, this);
+            if (otherCard != null && otherCard.cardInfo.type == 2 && otherCard.battleID == -1)
+                StartBattle(this, otherCard);
+                
         }
+    }
+    
+    public void StartBattle(Card goodCard, Card evilCard)
+    {
+        goodCard.ResetCombiningState();
+
+        //Remove from top stack
+        if (!goodCard.isHost) {
+            goodCard.isHost = true;
+
+            goodCard.GetHost().ResetCombiningState();
+            
+            //Recursively remove previous cards' partial stackedCards
+
+            goodCard.prevCard.RecursivelyRemoveFromStack(goodCard);
+            goodCard.prevCard = null;
+        }
+
+        //Remove bottom stack
+        if (goodCard.stackedCards != null && goodCard.stackedCards.Count > 0) {
+            goodCard.stackedCards[0].isHost = true;
+            goodCard.stackedCards[0].prevCard = null;
+            goodCard.stackedCards.Clear();
+        }
+
+        //Remove from rift
+        if (goodCard.inRift) {
+            goodCard.inRift = false;
+            goodCard.RemoveFromRift(riftPos);
+            goodCard.riftPos = -1;
+        }
+        
+        //Set to Kinematic so it is not pushed around
+        goodCard.rb.bodyType = RigidbodyType2D.Kinematic;
+        evilCard.rb.bodyType = RigidbodyType2D.Kinematic;
+        
+        //Set the battleID to the next available ID
+        goodCard.battleID = boardManager.BattleIDCounter;
+        evilCard.battleID = boardManager.BattleIDCounter;
+        
+        //Clear all overlapping memory
+        goodCard.ListOfOverlapped.Clear();
+        goodCard.ListOfOverlappedFrame.Clear();
+        goodCard.ListOfOverlappedEnemies.Clear();
+        
+        evilCard.ListOfOverlapped.Clear();
+        evilCard.ListOfOverlappedFrame.Clear();
+        evilCard.ListOfOverlappedEnemies.Clear();
+
+        //Start battle between 2 cards
+        boardManager.StartBattle(goodCard, evilCard);
     }
 }
