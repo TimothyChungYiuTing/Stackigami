@@ -63,8 +63,8 @@ public class Gem : MonoBehaviour
                 }
             }
             else if (inspirationFrame != null) {
-                if (int.Parse(Text_Amount.text) >= 5) {
-                    Text_Amount.text = (int.Parse(Text_Amount.text) - 5).ToString();
+                if (int.Parse(Text_Amount.text) >= 4) {
+                    Text_Amount.text = (int.Parse(Text_Amount.text) - 4).ToString();
                     inspirationFrame.OpenPack();
                 }
             }

@@ -118,7 +118,7 @@ public class BoardManager : MonoBehaviour
     {
         if (AshiyaDouman_Defeated && AllEnemiesDefeated()) {
             //TODO: Win Condition
-
+            AshiyaDouman_Defeated = false;
             Debug.LogError("WIN!");
         }
     }

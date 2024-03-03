@@ -286,7 +286,7 @@
             "attackCD": 3.4,
             "health": 17,
             "attr": 1,
-            "drops": []
+            "drops": [24]
         },
         {
             "id": 24,
@@ -319,7 +319,7 @@
             "sellPrice": 0,
             "sellEffect": 0,
             "attack": 0,
-            "attackCD": 2,
+            "attackCD": 1.5,
             "health": 0,
             "attr": 1,
             "drops": []

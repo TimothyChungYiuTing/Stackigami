@@ -61,7 +61,7 @@ public class InteractableFrame : MonoBehaviour
         }
         else if (interactMode == InteractMode.Inspiration) {
             CreatePack(1);
-            //2 Cards, 1-2 Inspirations
+            //3 Cards, 2-3 Inspirations
         }
         else if (interactMode == InteractMode.Curse) {
             CreatePack(2);

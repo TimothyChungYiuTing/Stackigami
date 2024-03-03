@@ -105,7 +105,7 @@
             "protect": [7]
         },
         {
-            "ingredients": [11, 13, 7, 18],
+            "ingredients": [9, 13, 7, 18],
             "time": 12,
             "drops": [20],
             "chance": [1],

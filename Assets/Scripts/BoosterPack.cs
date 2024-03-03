@@ -49,27 +49,27 @@ public class BoosterPack : MonoBehaviour
             }
         }
         else if (packID == 1) {
-            //2 Cards, 1-2 Inspirations
-            for (int i=0; i<2; i++) {    
-                if (Random.Range(0, 2) == 0)
+            //3 Cards, 1-2 Inspirations
+            for (int i=0; i<3; i++) {    
+                if (Random.Range(0, 4) == 0)
                     packContents.Add(0);
                 else
                     packContents.Add(Random.Range(2, 7));
             }
 
-            //Create an inspiration
+            //Create 1 inspiration
             packContents.Add(-1);
 
-            //50% to create 1 more inspiration
-            if (Random.Range(0, 2) == 0)
+            //67% to create 1 more inspiration
+            if (Random.Range(0, 3) != 0)
                 packContents.Add(-1);
         }
         else if (packID == 2) {
             //4 Cards, Higher chance of better cards, with chances of summoning enemies
 
             for (int i=0; i<4; i++) { 
-                //10% chance of enemy encounter
-                if (Random.Range(0, 10) == 0) {
+                //20% chance of enemy encounter
+                if (Random.Range(0, 5) == 0) {
                     if (boardManager.stage < 2)
                         packContents.Add(15);
                     else {
@@ -85,7 +85,7 @@ public class BoosterPack : MonoBehaviour
                     if (Random.Range(0, 5) == 0)
                         packContents.Add(0);
                     else if (Random.Range(0, 3) == 0)
-                        packContents.Add(Random.Range(8, 11));
+                        packContents.Add(Random.Range(8, 15));
                     else
                         packContents.Add(Random.Range(2, 7));
                 }
@@ -194,7 +194,7 @@ public class BoosterPack : MonoBehaviour
                 }
 
                 //TODO: Show in UI
-                inGameCanvas.AddRecipe(boardManager.DiscoveredRecipes[^1]);
+                inGameCanvas.AddRecipe(boardManager.DiscoveredRecipes[^1], false);
 
             } else {
                 //TODO: Tell player that all Available Recipes are discovered

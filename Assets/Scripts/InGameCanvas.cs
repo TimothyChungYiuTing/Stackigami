@@ -45,6 +45,17 @@ public class InGameCanvas : MonoBehaviour
         opened = !opened;
         //Debug.Log("ToggleRecipes");
         StartCoroutine(MoveRecipeBox());
+        
+        if (!opened) {
+            AllSeen();
+        }
+    }
+
+    public void AllSeen()
+    {
+        foreach (RectTransform recipeRect in RecipeTransforms) {
+            recipeRect.GetComponent<Recipe>().Seen();
+        }
     }
 
     private IEnumerator MoveRecipeBox()
@@ -77,7 +88,7 @@ public class InGameCanvas : MonoBehaviour
         }
     }
 
-    public void AddRecipe(CardDataManager.RecipeData recipeData)
+    public void AddRecipe(CardDataManager.RecipeData recipeData, bool made)
     {
         //Instantiate new recipe UI
         GameObject newRecipe = Instantiate(recipePrefab, recipeContent.transform.position, Quaternion.identity);
@@ -98,6 +109,6 @@ public class InGameCanvas : MonoBehaviour
         //Resize the Content for smart navigation
         recipeContent.sizeDelta = new Vector2(recipeContent.sizeDelta.x, 50f + 250f * RecipeTransforms.Count);
 
-        newRecipe.GetComponent<Recipe>().Setup(recipeData);
+        newRecipe.GetComponent<Recipe>().Setup(recipeData, made);
     }
 }

@@ -57,6 +57,10 @@ public class Card : MonoBehaviour
     public SpriteRenderer HurtFilter;
     public SpriteRenderer WitherFilter;
     public SpriteRenderer FrozenFilter;
+    public SpriteRenderer ShredFilter;
+
+    public bool withering = false;
+    public bool frozen = false;
 
     [Header("Rift")]
     private bool inRift = false;
@@ -122,10 +126,38 @@ public class Card : MonoBehaviour
             Text_Price.text = cardInfo.sellPrice.ToString();
         }
 
+
+        //Reset attacks and battle effects
         nextAttackDelay = cardInfo.attackCD;
+        withering = false;
+        frozen = false;
+        ResetFilter(HurtFilter);
+        ResetFilter(WitherFilter);
+        ResetFilter(FrozenFilter);
+        ResetFilter(ShredFilter);
+
+        ListOfOverlapped.Clear();
+        ListOfOverlappedEnemies.Clear();
+        ListOfOverlappedFrame.Clear();
 
         //Ensure card is solo card (unattached)
         ResetCard();
+
+        //If new discovery, add to recipe list
+        for (int i=0; i<3; i++) {
+            foreach (CardDataManager.RecipeData recipeData in boardManager.UndiscoveredRecipes_Stage[i]) {
+                if (recipeData.drops[0] == id) {
+                    boardManager.DiscoveredRecipes.Add(recipeData);
+                    boardManager.UndiscoveredRecipes_Stage[i].Remove(recipeData);
+                    FindObjectOfType<InGameCanvas>().AddRecipe(recipeData, true);
+                }
+            }
+        }
+    }
+
+    private void ResetFilter(SpriteRenderer sr)
+    {
+        sr.color = new Color(sr.color.r, sr.color.g, sr.color.b, 0f);
     }
 
     private void Die(Card card)
@@ -156,6 +188,7 @@ public class Card : MonoBehaviour
             }
             if (conjuratorNum == 1) {
                 //TODO: Lose Condition, Restart
+                Debug.LogError("LOSTTT");
             }
         }
 
@@ -357,7 +390,7 @@ public class Card : MonoBehaviour
     private void ChasePlayers()
     {
         //Map players and chase closest one
-        if (battleID == -1) {
+        if (battleID == -1 && !frozen) {
             StartCoroutine(ChaseMotion());
         }
     }
@@ -428,13 +461,15 @@ public class Card : MonoBehaviour
             t = Mathf.SmoothStep(0f, 1f, t);
             
             //Animation
-            transform.position = new Vector3(originalXPos + Mathf.Sin(t * Mathf.PI) * 4f * opponentDirMult, originalYPos + Mathf.Sin(t * Mathf.PI) * 0.8f, originalZPos - Mathf.Sin(t * Mathf.PI) * 0.2f);
-            opponentCard.transform.localScale = Vector3.one * (1f + Mathf.Sin(t * Mathf.PI) * 0.3f);
-            opponentCard.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * Mathf.PI) * 60f * opponentDirMult);
-            
-            if (timer > 0.15f)
-                opponentCard.HurtFilter.color = new Color(opponentCard.HurtFilter.color.r, opponentCard.HurtFilter.color.g, opponentCard.HurtFilter.color.b, 0.6f);
-            
+            if (!frozen) {
+                transform.position = new Vector3(originalXPos + Mathf.Sin(t * Mathf.PI) * 4f * opponentDirMult, originalYPos + Mathf.Sin(t * Mathf.PI) * 0.8f, originalZPos - Mathf.Sin(t * Mathf.PI) * 0.2f);
+                opponentCard.transform.localScale = Vector3.one * (1f + Mathf.Sin(t * Mathf.PI) * 0.3f);
+                opponentCard.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * Mathf.PI) * 60f * opponentDirMult);
+                
+                if (timer > 0.15f)
+                    opponentCard.HurtFilter.color = new Color(opponentCard.HurtFilter.color.r, opponentCard.HurtFilter.color.g, opponentCard.HurtFilter.color.b, 0.6f);
+                
+            }
             timer += Time.deltaTime;
             yield return null;
         }
@@ -445,10 +480,12 @@ public class Card : MonoBehaviour
         opponentCard.HurtFilter.color = new Color(opponentCard.HurtFilter.color.r, opponentCard.HurtFilter.color.g, opponentCard.HurtFilter.color.b, 0f);
 
         //Deal damage, Instantiate DamagePrefab
-        opponentCard.cardInfo.currentHealth -= cardInfo.attack;
-        GameObject damageVisual = Instantiate(DamagePrefab, opponentCard.transform.position + Vector3.back * 0.4f + Vector3.right * Random.Range(-0.6f, 0.6f) + Vector3.up * Random.Range(-1.2f, 1.2f), Quaternion.Euler(0f, 0f, Random.Range(-45f, 45f)));
-        damageVisual.GetComponent<Damage>().side = cardInfo.type;
-        damageVisual.GetComponent<Damage>().damage = cardInfo.attack;
+        if (!frozen) {
+            opponentCard.cardInfo.currentHealth -= cardInfo.attack;
+            GameObject damageVisual = Instantiate(DamagePrefab, opponentCard.transform.position + Vector3.back * 0.4f + Vector3.right * Random.Range(-0.6f, 0.6f) + Vector3.up * Random.Range(-1.2f, 1.2f), Quaternion.Euler(0f, 0f, Random.Range(-45f, 45f)));
+            damageVisual.GetComponent<Damage>().side = cardInfo.type;
+            damageVisual.GetComponent<Damage>().damage = cardInfo.attack;
+        }
         
         //Keep lowering nextAttackDelay
         timer = 0f;
@@ -461,8 +498,6 @@ public class Card : MonoBehaviour
         }
 
         nextAttackDelay = 0f;
-
-        //StartCoroutine(Hit(opponentCard, attackCD));
     }
 
 
@@ -717,6 +752,39 @@ public class Card : MonoBehaviour
         }
 
         //TODO: Spell Interactions
+        if (cardInfo.type == 3 && ListOfOverlappedEnemies.Count > 0) {
+            //Get closest enemy card
+            float distance = 9999f;
+            Card closestEnemyCard = null;
+
+            foreach (GameObject cardGameObject in ListOfOverlappedEnemies) {
+                float tempDistance = Vector2.Distance(transform.position, cardGameObject.transform.position);
+                if (tempDistance < distance) {
+                    if (!(id == 25 && cardGameObject.GetComponent<Card>().withering) && !(id == 26 && cardGameObject.GetComponent<Card>().frozen)) {
+                        distance = tempDistance;
+                        closestEnemyCard = cardGameObject.GetComponent<Card>();
+                    }
+                }
+            }
+
+            if (closestEnemyCard != null) {
+                if (id == 25) {
+                    //Apply Wither Effect
+                    closestEnemyCard.Wither(cardInfo.attack, cardInfo.attackCD);
+                    CardDestroy(this);
+                }
+                else if (id == 26) {
+                    //Apply Freeze Effect
+                    closestEnemyCard.Freeze(cardInfo.attackCD);
+                    CardDestroy(this);
+                }
+                else if (id == 34) {
+                    //Apply Shred Effect
+                    closestEnemyCard.Shred(cardInfo.attack);
+                    CardDestroy(this);
+                }
+            }
+        }
 
         if (ListOfOverlappedFrame.Count > 0) {
             InteractableFrame OverlappedFrame = ListOfOverlappedFrame[0].GetComponent<InteractableFrame>();
@@ -841,6 +909,77 @@ public class Card : MonoBehaviour
             //Unstackable type of card
             return false;
         }
+    }
+
+    public void Freeze(float attackCD)
+    {
+        frozen = true;
+        StartCoroutine(FreezeEffects(attackCD));
+    }
+
+    private IEnumerator FreezeEffects(float attackCD)
+    {
+        float timer = 0f;
+
+        while (timer < attackCD) {
+            FrozenFilter.color = Color.Lerp(new Color(FrozenFilter.color.r, FrozenFilter.color.g, FrozenFilter.color.b, 0.9f), new Color(FrozenFilter.color.r, FrozenFilter.color.g, FrozenFilter.color.b, 0.7f), (timer-0.3f)/attackCD);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        FrozenFilter.color = new Color(FrozenFilter.color.r, FrozenFilter.color.g, FrozenFilter.color.b, 0f);
+        frozen = false;
+    }
+
+    public void Wither(int attack, float attackCD)
+    {
+        withering = true;
+        StartCoroutine(WitherEffects(attack, attackCD, 3));
+    }
+
+    private IEnumerator WitherEffects(int attack, float attackCD, int repeatTimes) {
+        if (repeatTimes == 0) {
+            withering = false;
+            yield break;
+        }
+
+        float timer = 0f;
+
+        while (timer < attackCD) {
+            WitherFilter.color = new Color(WitherFilter.color.r, WitherFilter.color.g, WitherFilter.color.b, Mathf.Sin(timer/attackCD * Mathf.PI) * 0.3f + 0.4f);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        cardInfo.currentHealth -= attack;
+        WitherFilter.color = new Color(WitherFilter.color.r, WitherFilter.color.g, WitherFilter.color.b, 0f);
+
+        GameObject damageVisual = Instantiate(DamagePrefab, transform.position + Vector3.back * 0.4f + Vector3.right * Random.Range(-0.6f, 0.6f) + Vector3.up * Random.Range(-1.2f, 1.2f), Quaternion.Euler(0f, 0f, Random.Range(-45f, 45f)));
+        damageVisual.GetComponent<Damage>().side = 1;
+        damageVisual.GetComponent<Damage>().damage = attack;
+
+        StartCoroutine(WitherEffects(attack, attackCD, repeatTimes-1));
+    }
+
+    public void Shred(int attack)
+    {
+        cardInfo.currentHealth -= attack;
+
+        GameObject damageVisual = Instantiate(DamagePrefab, transform.position + Vector3.back * 0.4f + Vector3.right * Random.Range(-0.6f, 0.6f) + Vector3.up * Random.Range(-1.2f, 1.2f), Quaternion.Euler(0f, 0f, Random.Range(-45f, 45f)));
+        damageVisual.GetComponent<Damage>().side = 1;
+        damageVisual.GetComponent<Damage>().damage = attack;
+        
+        StartCoroutine(ShredEffects());
+    }
+
+    private IEnumerator ShredEffects() {
+        float timer = 0f;
+
+        while (timer < 0.6f) {
+            ShredFilter.color = Color.Lerp(new Color(1f, 1f, 1f, 2f), new Color(1f, 1f, 1f, 0f), timer/0.6f);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        ShredFilter.color = new Color(ShredFilter.color.r, ShredFilter.color.g, ShredFilter.color.b, 0f);
     }
 
     private Card GetClosestBattleableEnemy(List<GameObject> listOfOverlappedEnemies)
