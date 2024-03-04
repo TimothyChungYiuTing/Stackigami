@@ -16,7 +16,7 @@ public class Recipe : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Invoke("ToYellow", 15f);
+        Invoke("ToSofter", 15f);
         Invoke("Seen", 60f);
     }
 
@@ -103,10 +103,10 @@ public class Recipe : MonoBehaviour
         }
     }
 
-    private void ToYellow()
+    private void ToSofter()
     {
-        NewBox.GetComponent<Image>().color = Color.yellow;
-        NewBox.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = Color.red;
+        NewBox.GetComponent<Image>().color = new Color(1f, 0.5f, 0.5f, 1.0f);
+        NewBox.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = Color.white;
     }
 
     public void Seen()

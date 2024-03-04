@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-2256576309735059763
+--- !u!114 &-6569418882541893818
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: AppearMaterial
-  m_Shader: {fileID: -6465566751694194690, guid: f80d7206c658b3e45961659679ac0fc7, type: 3}
+  m_Name: Dissolve
+  m_Shader: {fileID: -6465566751694194690, guid: dd13d9e36081ee34585bc029fbe046d9, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -36,7 +36,7 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _MainTexture:
+    - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -54,9 +54,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _RippleSpeed: 1
-    - _RippleStrength: 1
-    - _RipplesCount: 4
+    - _AlphaAmount: 1.1
+    - _DissolveScale: 25
+    - _OutlineThickness: 0.07
+    - _SpiralStrength: 0
     m_Colors:
-    - _RippleCenter: {r: 0, g: 0, b: 0, a: 0}
+    - _OutlineColor: {r: 0, g: 8, b: 7.92083, a: 0}
   m_BuildTextureStacks: []

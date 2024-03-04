@@ -16,6 +16,8 @@ public class Card : MonoBehaviour
     public Card prevCard = null;
     public List<Card> stackedCards = new();
 
+    [HideInInspector] public bool removed = false;
+
     public CardDataManager.RecipeData combiningRecipe = null;
     
     public bool stackable = true;
@@ -68,6 +70,15 @@ public class Card : MonoBehaviour
 
     [Header("CraftedTimes")]
     private int craftedTimes = 0;
+
+    [Header("Shader")]
+    [SerializeField] private float _dissolveTime = 0.75f;
+
+    private List<SpriteRenderer> _spriteRenderers;
+    private List<Material> _materials;
+
+    private int _alphaAmount = Shader.PropertyToID("_AlphaAmount");
+    private int _outlineColor = Shader.PropertyToID("_OutlineColor");
 
     // Start is called before the first frame update    
     void Start()
@@ -142,6 +153,18 @@ public class Card : MonoBehaviour
         ListOfOverlapped.Clear();
         ListOfOverlappedEnemies.Clear();
         ListOfOverlappedFrame.Clear();
+        
+        //Shader part
+        _spriteRenderers = GetComponentsInChildren<SpriteRenderer>().ToList();
+        _spriteRenderers.Add(GetComponent<SpriteRenderer>());
+
+        _materials = new();
+        for (int i=0; i < _spriteRenderers.Count; i++) {
+            _spriteRenderers[i].material.mainTexture = _spriteRenderers[i].sprite.texture;
+            _materials.Add(_spriteRenderers[i].material);
+        }
+
+        StartCoroutine(Appear());
 
         //Ensure card is solo card (unattached)
         ResetCard();
@@ -153,8 +176,78 @@ public class Card : MonoBehaviour
                     boardManager.DiscoveredRecipes.Add(recipeData);
                     boardManager.UndiscoveredRecipes_Stage[i].Remove(recipeData);
                     FindObjectOfType<InGameCanvas>().AddRecipe(recipeData, true);
+                    break;
                 }
             }
+        }
+    }
+
+    private IEnumerator Appear()
+    {
+        float elapsedTime = 0f;
+        for (int i = 0; i < _materials.Count; i++) {
+            _materials[i].SetColor(_outlineColor, GetColor(cardInfo.type));
+        }
+
+        while (elapsedTime < _dissolveTime) {
+            elapsedTime += Time.deltaTime;
+
+            Text_Name.color = Color.Lerp(new Color(Text_Name.color.r, Text_Name.color.g, Text_Name.color.b, 0f), new Color(Text_Name.color.r, Text_Name.color.g, Text_Name.color.b, 1f), elapsedTime/_dissolveTime);
+            Text_Health.color = Color.Lerp(new Color(Text_Health.color.r, Text_Health.color.g, Text_Health.color.b, 0f), new Color(Text_Health.color.r, Text_Health.color.g, Text_Health.color.b, 1f), elapsedTime/_dissolveTime);
+            Text_Price.color = Color.Lerp(new Color(Text_Price.color.r, Text_Price.color.g, Text_Price.color.b, 0f), new Color(Text_Price.color.r, Text_Price.color.g, Text_Price.color.b, 1f), elapsedTime/_dissolveTime);
+
+            float lerpedDissolve = Mathf.Lerp(-0.1f, 1.1f, elapsedTime/_dissolveTime);
+
+            for (int i = 0; i < _materials.Count; i++) {
+                _materials[i].SetFloat(_alphaAmount, lerpedDissolve);
+            }
+
+            yield return null;
+        }
+    }
+
+    private IEnumerator Vanish()
+    {
+        float elapsedTime = 0f;
+        for (int i = 0; i < _materials.Count; i++) {
+            _materials[i].SetColor(_outlineColor, GetColor(cardInfo.type));
+        }
+
+        while (elapsedTime < _dissolveTime) {
+            elapsedTime += Time.deltaTime;
+
+            Text_Name.color = Color.Lerp(new Color(Text_Name.color.r, Text_Name.color.g, Text_Name.color.b, 1f), new Color(Text_Name.color.r, Text_Name.color.g, Text_Name.color.b, 0f), elapsedTime/_dissolveTime);
+            Text_Health.color = Color.Lerp(new Color(Text_Health.color.r, Text_Health.color.g, Text_Health.color.b, 1f), new Color(Text_Health.color.r, Text_Health.color.g, Text_Health.color.b, 0f), elapsedTime/_dissolveTime);
+            Text_Price.color = Color.Lerp(new Color(Text_Price.color.r, Text_Price.color.g, Text_Price.color.b, 1f), new Color(Text_Price.color.r, Text_Price.color.g, Text_Price.color.b, 0f), elapsedTime/_dissolveTime);
+
+            float lerpedDissolve = Mathf.Lerp(1.1f, -0.1f, elapsedTime/_dissolveTime);
+
+            for (int i = 0; i < _materials.Count; i++) {
+                _materials[i].SetFloat(_alphaAmount, lerpedDissolve);
+            }
+
+            yield return null;
+        }
+    }
+
+    private Color GetColor(int type) {
+        switch (type) {
+            case 0:
+                return Color.yellow;
+            case 1:
+                return Color.cyan;
+            case 2:
+                return Color.red;
+            case 3:
+                return Color.magenta;
+            case 4:
+                return Color.white;
+            case 5:
+                return Color.green;
+            case 6:
+                return Color.green;
+            default:
+                return Color.cyan;
         }
     }
 
@@ -207,8 +300,13 @@ public class Card : MonoBehaviour
         boardManager.existingCardsList.Remove(card);
         card.coll.enabled = false;
         //TODO: Disappear sequence
+        card.removed = true;
+        card.StopAllCoroutines();
+        card.CancelInvoke();
+        card.StartCoroutine(Vanish());
+
         //Delayed Destroy
-        Destroy(card.gameObject);
+        Destroy(card.gameObject, _dissolveTime);
     }
 
     private void AssignTypeStyle()
@@ -519,65 +617,69 @@ public class Card : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isHost && combiningRecipe == null) {
-            if (RecipeExists(id, stackedCards, cardDataManager.recipeDatas.recipeDataArray)) {
-                //Start Combining
-                ProgressBG.SetActive(true);
-                StartCoroutine(Craft(combiningRecipe));
-            }
-        }
+        if (!removed) {
 
-        //Reset Collider size and position to prevent hitting own stack
-        if (stackedCards.Count == 0) {
-            coll.offset = new Vector2(0f, 0f);
-            coll.size = new Vector2(1.7f, 3.4f);
-        }
-        else {
-            coll.offset = new Vector2(0f, 1.4f);
-            coll.size = new Vector2(1.7f, 0.6f);
-        }
-
-        //Keep updating stack's transform.position
-        if (isHost) {
-            RestackPosition();
-        }
-
-        //Keep updating currentHealth info
-        if (cardInfo.type == 1 || cardInfo.type == 2) {
-            Text_Health.text = cardInfo.currentHealth.ToString();
-            
-
-            if (coll.enabled && cardInfo.currentHealth <= 0) {
-                Die(this);
-            }
-        }
-        
-        //Heal every 10 sec (If not in battle)
-        if (cardInfo.type == 1 && battleID == -1) {
-            if (Time.time - lastTimeHealed > 10f) {
-                if (cardInfo.currentHealth < cardInfo.maxHealth) {
-                    cardInfo.currentHealth++;
-                    lastTimeHealed = Time.time;
+            if (isHost && combiningRecipe == null) {
+                if (RecipeExists(id, stackedCards, cardDataManager.recipeDatas.recipeDataArray)) {
+                    //Start Combining
+                    ProgressBG.SetActive(true);
+                    StartCoroutine(Craft(combiningRecipe));
                 }
             }
-        }
 
-        //Make card transform normal if not in battle
-        if (battleID == -1) {
-            transform.localScale = Vector3.one;
-            transform.localRotation = Quaternion.identity;
-            HurtFilter.color = new Color(HurtFilter.color.r, HurtFilter.color.g, HurtFilter.color.b, 0f);
-        }
+            //Reset Collider size and position to prevent hitting own stack
+            if (stackedCards.Count == 0) {
+                coll.offset = new Vector2(0f, 0f);
+                coll.size = new Vector2(1.7f, 3.4f);
+            }
+            else {
+                coll.offset = new Vector2(0f, 1.4f);
+                coll.size = new Vector2(1.7f, 0.6f);
+            }
 
-        //Warning: Debug Only Section
-        if (Input.GetKeyDown(KeyCode.H)) {
-            cardInfo.currentHealth = 0;
-        }
-        if (cardInfo.type == 1 && Input.GetKeyDown(KeyCode.G)) {
-            cardInfo.currentHealth = 0;
-        }
-        if (cardInfo.type == 2 && Input.GetKeyDown(KeyCode.J)) {
-            cardInfo.currentHealth = 0;
+            //Keep updating stack's transform.position
+            if (isHost) {
+                RestackPosition();
+            }
+
+            //Keep updating currentHealth info
+            if (cardInfo.type == 1 || cardInfo.type == 2) {
+                Text_Health.text = cardInfo.currentHealth.ToString();
+                
+
+                if (coll.enabled && cardInfo.currentHealth <= 0) {
+                    Die(this);
+                }
+            }
+            
+            //Heal every 10 sec (If not in battle)
+            if (cardInfo.type == 1 && battleID == -1) {
+                if (Time.time - lastTimeHealed > 10f) {
+                    if (cardInfo.currentHealth < cardInfo.maxHealth) {
+                        cardInfo.currentHealth++;
+                        lastTimeHealed = Time.time;
+                    }
+                }
+            }
+
+            //Make card transform normal if not in battle
+            if (battleID == -1) {
+                transform.localScale = Vector3.one;
+                transform.localRotation = Quaternion.identity;
+                HurtFilter.color = new Color(HurtFilter.color.r, HurtFilter.color.g, HurtFilter.color.b, 0f);
+            }
+
+            //Warning: Debug Only Section
+            if (Input.GetKeyDown(KeyCode.H)) {
+                cardInfo.currentHealth = 0;
+            }
+            if (cardInfo.type == 1 && Input.GetKeyDown(KeyCode.G)) {
+                cardInfo.currentHealth = 0;
+            }
+            if (cardInfo.type == 2 && Input.GetKeyDown(KeyCode.J)) {
+                cardInfo.currentHealth = 0;
+            }
+
         }
     }
 
@@ -671,7 +773,7 @@ public class Card : MonoBehaviour
     private void ResetCombiningState()
     {
         //Reset combining progress & Hide progress bar
-        StopAllCoroutines();
+        StopCoroutine("Craft");
         ProgressBG.SetActive(false);
         combiningRecipe = null;
     }
