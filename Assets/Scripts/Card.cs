@@ -111,6 +111,7 @@ public class Card : MonoBehaviour
                 boardManager.curseFrame.SetActive(true);
                 boardManager.ProceedStage(4);
             } else if (id == 18 && boardManager.stage == 0) {
+                AudioManager.Instance.ChangeSong(1);
                 boardManager.stage++;
                 boardManager.ProceedStage(6);
             } else if (id == 28 && boardManager.stage == 1) {
@@ -641,7 +642,8 @@ public class Card : MonoBehaviour
         combiningRecipe = null;
         battleID = -1;
         craftedTimes = 0;
-        //Debug.LogError("Reset Card " + gameObject.name);
+        
+        ResetCombiningState();
     }
 
     // Update is called once per frame

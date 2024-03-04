@@ -26,6 +26,7 @@ public class InteractableFrame : MonoBehaviour
     public float riftNeededTime = 20f;
     public GameObject ProgressBG;
     public List<int> PossibleRiftOutcomes;
+    private bool riftUnlocked = false;
 
     // Start is called before the first frame update
     void Start()
@@ -82,13 +83,17 @@ public class InteractableFrame : MonoBehaviour
 
     public void UnlockRift()
     {
-        Text_Words.text = "Seimei's Palace";
-        Text_Words.transform.localPosition = new Vector3(0f, 1.8f, -3f);
-        coll.enabled = true;
-        foreach (GameObject hint in RiftPositionsHint) {
-            hint.SetActive(true);
+        if (!riftUnlocked) {
+            riftUnlocked = true;
+            AudioManager.Instance.ChangeSong(2);
+            Text_Words.text = "Seimei's Palace";
+            Text_Words.transform.localPosition = new Vector3(0f, 1.8f, -3f);
+            coll.enabled = true;
+            foreach (GameObject hint in RiftPositionsHint) {
+                hint.SetActive(true);
+            }
+            Invoke("CollTriggerTrue", 0.4f);
         }
-        Invoke("CollTriggerTrue", 0.4f);
     }
     
     private IEnumerator Explore(float neededTime)

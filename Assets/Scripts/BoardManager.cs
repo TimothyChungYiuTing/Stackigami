@@ -240,7 +240,7 @@ public class BoardManager : MonoBehaviour
                         SameIDCardList[i].isHost = false;
                         SameIDCardList[i].prevCard = SameIDCardList[i-1];
                     }
-
+                    
                     if (i+1 < SameIDCardList.Count)
                         SameIDCardList[i].stackedCards = SameIDCardList.GetRange(i+1, SameIDCardList.Count - (i+1));
                 }

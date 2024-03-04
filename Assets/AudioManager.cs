@@ -10,6 +10,7 @@ public class AudioManager : Singleton<AudioManager>
 	public float volume;
 	[SerializeField] public float multipliedVolume = 1f; //For if I want to have temporary volume changes in the future
 	private int currentSongIndex = 0;
+    private int newSongIndex = 0;
     private float trackTimer = 0f;
 
     new void Awake() {
@@ -49,30 +50,47 @@ public class AudioManager : Singleton<AudioManager>
 	}
 
 	public void ChangeSong(int songIndex) {
-        if (currentSongIndex != songIndex) {
-            trackTimer = 0;
-            currentSongIndex = songIndex;
-
-            audioSource.clip = songClips[currentSongIndex];
-            audioSource.Play();
-        }
+        FadeOut();
+        newSongIndex = songIndex;
+        Invoke("FadeIn", 5f);
 	}
 
 	public void Stop() {
 		audioSource.Stop();
-	}
+	}    
 
-    public void Fade() {
-        StartCoroutine(FadeEffect());
+    public void FadeIn() {
+        if (currentSongIndex != newSongIndex) {
+            trackTimer = 0;
+            currentSongIndex = newSongIndex;
+
+            audioSource.clip = songClips[currentSongIndex];
+            audioSource.Play();
+        }
+        StartCoroutine(FadeEffect(true));
     }
 
-    public IEnumerator FadeEffect() {
+    public void FadeOut() {
+        StartCoroutine(FadeEffect(false));
+    }
+
+    public IEnumerator FadeEffect(bool fadeIn) {
         //Fade out then Fade in again
         float startTime = Time.time;
-        while (Time.time-startTime < 0.7f) {      //Done in 5 seconds
-            multipliedVolume = Mathf.Cos(2 * Mathf.PI * (Time.time-startTime) / 5f);
+        while (Time.time-startTime < 5f) {      //Done in 5 seconds
+            if (fadeIn) {
+                multipliedVolume = 1 - (1f + Mathf.Cos(Mathf.PI * (Time.time-startTime) / 5f)) / 2f;
+            }
+            else {
+                multipliedVolume = (1f + Mathf.Cos(Mathf.PI * (Time.time-startTime) / 5f)) / 2f;
+            }
             yield return null;
         }
-        multipliedVolume = 1f;
+        if (fadeIn) {
+            multipliedVolume = 1f;
+        }
+        else {
+            multipliedVolume = 0f;
+        }
     }
 }
