@@ -155,6 +155,8 @@ public class BoosterPack : MonoBehaviour
     private void OnMouseUp()
     {
         if (isDragging) {
+            transform.position -= Vector3.up * 0.15f;
+            
             isDragging = false;
             transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.y * 0.1f - 2.5f);
 
@@ -174,6 +176,7 @@ public class BoosterPack : MonoBehaviour
 
     private void OpenPack()
     {
+        //Open the pack to create either a card or an inspiration
         if (cardAmountID < packContentsID.Count) {
             StartCoroutine(Shake(shakeDuration));
 

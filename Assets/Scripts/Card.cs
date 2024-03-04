@@ -853,6 +853,8 @@ public class Card : MonoBehaviour
     {
         if (draggable) {
             if (isDragging) {
+                transform.position -= Vector3.up * 0.15f;
+
                 //ALL IN ONE FUNCTION:
                 //Joining Battle, Selling Cards, Joining Rift, Stack Effects ----- StackToClosestCollided()
                 if (StackToClosestCollided()) {

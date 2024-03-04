@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,37 @@ public class BoardManager : MonoBehaviour
 
     public bool oniDiscovered = false;
     public int stage = 0; //0: Start, 1: Pentagram discovered, 2: Rift 1 discovered
+    public int objectiveStage = 0;
+    public List<String> objectiveTexts = new() {
+        "Objective:\tBuy an Incant Pack",
+        "Objective:\tComplete a Recipe",
+        "Objective:\tSell a Card",
+        "Objective:\tCreate a 2nd Conjurer",
+        "Objective:\tCraft a Pentagram",
+
+        "Objective:\tCreate a Shikigami",
+        "Objective:\tCraft a Spell",
+        "Objective:\tDiscover the Rift",
+        "Objective:\tSummon Ashiya Douman",
+        "Objective:\tDefeat Ashiya Douman",
+
+        "Objective:\tDefeat all enemies",
+    };
+    public List<Color> objectiveColors = new() {
+        Color.green,
+        Color.green,
+        Color.green,
+        Color.yellow,
+        Color.magenta,
+
+        Color.green,
+        Color.green,
+        Color.magenta,
+        Color.cyan,
+        Color.magenta,
+        
+        Color.magenta,
+    };
     public bool AshiyaDouman_Defeated = false;
 
 
@@ -130,6 +162,32 @@ public class BoardManager : MonoBehaviour
             foreach(Card card in existingCardsList) {
                 if (card.battleID == -1 && !card.inRift && !card.removed && card.stackable && card.prevCard == null && card.stackedCards.Count > 0) {
                     //Check if id does not exist, then Check if all children cards are same. If same, add all cards a single SameIDCardList to be added to ListOfSameIDCardLists
+                    bool allCardsSame = true;
+                    foreach(Card stackedCard in card.stackedCards) {
+                        if (stackedCard.id != card.id) {
+                            allCardsSame = false;
+                        }
+                    }
+
+                    if (allCardsSame) {
+                        if (!uniqueIDs.Contains(card.id)) {
+                            //Create new list with self and stackedCards
+                            List<Card> newCardList = new() { card };
+                            newCardList.AddRange(card.stackedCards);
+                            uniqueIDs.Add(card.id);
+                            ListOfSameIDCardLists.Add(newCardList);
+                        } else {
+                            //Add self and stackedCards to list
+                            List<Card> newCardList = new() { card };
+                            newCardList.AddRange(card.stackedCards);
+                            
+                            for (int i=0; i<uniqueIDs.Count; i++) {
+                                if (uniqueIDs[i] == card.id) {
+                                    ListOfSameIDCardLists[i].AddRange(newCardList);
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -203,7 +261,7 @@ public class BoardManager : MonoBehaviour
 
         //Return one of the opponent cards
         if (OpponentCards.Count > 0)
-            return OpponentCards[Random.Range(0, OpponentCards.Count)];
+            return OpponentCards[UnityEngine.Random.Range(0, OpponentCards.Count)];
         
         return null;
     }
