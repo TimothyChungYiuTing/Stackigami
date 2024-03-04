@@ -17,14 +17,6 @@
             "protect": [7]
         },
         {
-            "ingredients": [2, 4, 7],
-            "time": 5,
-            "drops": [8],
-            "chance": [1],
-            "recipeStage": 0,
-            "protect": [7]
-        },
-        {
             "ingredients": [4, 5, 7],
             "time": 5,
             "drops": [9],
@@ -137,7 +129,7 @@
             "protect": [7, 18]
         },
         {
-            "ingredients": [24, 8, 7],
+            "ingredients": [24, 10, 7],
             "time": 7,
             "drops": [25],
             "chance": [1],

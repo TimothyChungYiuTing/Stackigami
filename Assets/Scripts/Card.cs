@@ -66,6 +66,9 @@ public class Card : MonoBehaviour
     private bool inRift = false;
     private int riftPos = -1;
 
+    [Header("CraftedTimes")]
+    private int craftedTimes = 0;
+
     // Start is called before the first frame update    
     void Start()
     {
@@ -509,6 +512,7 @@ public class Card : MonoBehaviour
         stackedCards.Clear();
         combiningRecipe = null;
         battleID = -1;
+        craftedTimes = 0;
         //Debug.LogError("Reset Card " + gameObject.name);
     }
 
@@ -516,7 +520,6 @@ public class Card : MonoBehaviour
     void Update()
     {
         if (isHost && combiningRecipe == null) {
-            //Debug.Log("CombiningRecipe is null");
             if (RecipeExists(id, stackedCards, cardDataManager.recipeDatas.recipeDataArray)) {
                 //Start Combining
                 ProgressBG.SetActive(true);
@@ -605,21 +608,64 @@ public class Card : MonoBehaviour
         CreateCard(recipe.GetRandomResultID());
 
         //Destroy Ingredients
+        bool ingredientsDestroyed = false;
         foreach (Card card in stackedCards) {
-            if (recipe.protect.Contains(card.id)) {
-                card.ResetCard();
+            if (recipe.protect.Contains(card.id))
+            {
+                if (!recipe.ingredients.Contains(0)) {
+                    card.ResetCard();
+                }
             }
             else {
-                CardDestroy(card);
+                //Make blank charms destroy after 2 usages instead
+                if (card.id == 0 && card.craftedTimes == 0) {
+                    card.craftedTimes++;
+                }
+                else {
+                    CardDestroy(card);
+                    ingredientsDestroyed = true;
+                }
             }
         }
 
         if (recipe.protect.Contains(id)) {
-            ResetCard();
+            if (!recipe.ingredients.Contains(0)) {
+                ResetCard();
+            }
         }
         else {
-            CardDestroy(this);
+            //Make blank charms destroy after 2 usages instead
+            if (id == 0 && craftedTimes == 0) {
+                craftedTimes++;
+            }
+            else {
+                CardDestroy(this);
+                ingredientsDestroyed = true;
+            }
         }
+
+        if (ingredientsDestroyed) {
+            foreach (Card stackedCard in stackedCards) {
+                stackedCard?.ResetCard();
+            }
+            ResetCard();
+        }
+
+        combiningRecipe = null;
+    }
+
+    private bool AllCraftsDone(int craftsNum)
+    {
+        //Checks if all crafts of Blank Charm are done
+        bool AllCraftsFinished = false;
+        foreach (Card stackedCard in stackedCards)
+        {
+            if (stackedCard.id == 0 && stackedCard.craftedTimes >= craftsNum)
+            {
+                AllCraftsFinished = true;
+            }
+        }
+        return AllCraftsFinished;
     }
 
     private void ResetCombiningState()

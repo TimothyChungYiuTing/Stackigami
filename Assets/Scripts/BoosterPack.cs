@@ -51,7 +51,7 @@ public class BoosterPack : MonoBehaviour
         else if (packID == 1) {
             //3 Cards, 1-2 Inspirations
             for (int i=0; i<3; i++) {    
-                if (Random.Range(0, 4) == 0)
+                if (Random.Range(0, 3) == 0)
                     packContents.Add(0);
                 else
                     packContents.Add(Random.Range(2, 7));
@@ -73,7 +73,7 @@ public class BoosterPack : MonoBehaviour
                     if (boardManager.stage < 2)
                         packContents.Add(15);
                     else {
-                        if (Random.Range(0, 4) == 0) {
+                        if (Random.Range(0, 5) == 0) {
                             packContents.Add(15);
                         }
                         else {
@@ -169,7 +169,14 @@ public class BoosterPack : MonoBehaviour
                 offset = Vector3.up * 2.5f;
             }
             GameObject NewCard = Instantiate(CardPrefab, createPos + offset, Quaternion.identity);
-            NewCard.GetComponent<Card>().id = cardID;
+
+            //Around 12.5% of the time being a phantom
+            if (Random.Range(0, 8) == 0) {
+                NewCard.GetComponent<Card>().id = 8;
+            }
+            else {
+                NewCard.GetComponent<Card>().id = cardID;
+            }
         }
         else {
             //Create Inspiration

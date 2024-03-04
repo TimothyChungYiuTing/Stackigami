@@ -654,7 +654,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000016677133}
+  m_AnchoredPosition: {x: 0, y: -0.000023841858}
   m_SizeDelta: {x: 490, y: 300}
   m_Pivot: {x: 1, y: 1}
 --- !u!1 &175269819
@@ -5645,8 +5645,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 1424084962}
-  songClips: []
-  volume: 0.5
+  songClips:
+  - {fileID: 8300000, guid: de4cdd95422eabf4f8e8b2229eddd2c4, type: 3}
+  - {fileID: 8300000, guid: c7955f64ab3a0e84ba36ba961acb4c5b, type: 3}
+  - {fileID: 8300000, guid: 5dbd754e425ff3648a6246b12f2448c9, type: 3}
+  volume: 0.3
   multipliedVolume: 1
 --- !u!4 &1424084964
 Transform:
@@ -7979,11 +7982,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1947066469865649496, guid: 49f4433c73ce5354f9ba7b0e97a5a5ff, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -14.5
+      value: -1.62
       objectReference: {fileID: 0}
     - target: {fileID: 1947066469865649496, guid: 49f4433c73ce5354f9ba7b0e97a5a5ff, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.59
+      value: -3.17
       objectReference: {fileID: 0}
     - target: {fileID: 1947066469865649496, guid: 49f4433c73ce5354f9ba7b0e97a5a5ff, type: 3}
       propertyPath: m_LocalPosition.z

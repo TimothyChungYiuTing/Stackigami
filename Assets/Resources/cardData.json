@@ -26,7 +26,7 @@
         },
         {
             "id": 2,
-            "name": "Chi",
+            "name": "Earth",
             "type": 0,
             "sellPrice": 1,
             "sellEffect": 0,
@@ -38,7 +38,7 @@
         },
         {
             "id": 3,
-            "name": "Sui",
+            "name": "Water",
             "type": 0,
             "sellPrice": 1,
             "sellEffect": 0,
@@ -50,7 +50,7 @@
         },
         {
             "id": 4,
-            "name": "Ka",
+            "name": "Fire",
             "type": 0,
             "sellPrice": 1,
             "sellEffect": 0,
@@ -62,7 +62,7 @@
         },
         {
             "id": 5,
-            "name": "Fu",
+            "name": "Wind",
             "type": 0,
             "sellPrice": 1,
             "sellEffect": 0,
@@ -74,7 +74,7 @@
         },
         {
             "id": 6,
-            "name": "Ku",
+            "name": "Void",
             "type": 0,
             "sellPrice": 1,
             "sellEffect": 0,
@@ -98,15 +98,15 @@
         },
         {
             "id": 8,
-            "name": "Courage",
-            "type": 0,
-            "sellPrice": 1,
+            "name": "Phantom",
+            "type": 2,
+            "sellPrice": 0,
             "sellEffect": 0,
-            "attack": 0,
-            "attackCD": 0,
-            "health": 0,
-            "attr": 0,
-            "drops": []
+            "attack": 1,
+            "attackCD": 2.6,
+            "health": 6,
+            "attr": 4,
+            "drops": [6]
         },
         {
             "id": 9,
@@ -188,7 +188,7 @@
             "sellEffect": -1,
             "attack": 1,
             "attackCD": 2.4,
-            "health": 6,
+            "health": 8,
             "attr": 2,
             "drops": [16]
         },
