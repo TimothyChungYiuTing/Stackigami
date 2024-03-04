@@ -55,7 +55,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: dd189be78ad4ddc48a90288401a8d33c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -104,8 +104,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 857d534f15279c349aec1c65bb321c79, type: 3}
   - {fileID: 21300000, guid: e2cd6bbb18681f24ba0cfb2658562b97, type: 3}
   - {fileID: 21300000, guid: e5ec4158c57b6704888069210ed419ec, type: 3}
+  shakeDuration: 0.3
   isDragging: 0
   CardPrefab: {fileID: 7629507956167564247, guid: 6b1e7cf292f8b394c9c64d1ca2af1142, type: 3}
+  _dissolveTime: 0.75
 --- !u!50 &1578940938730398656
 Rigidbody2D:
   serializedVersion: 4

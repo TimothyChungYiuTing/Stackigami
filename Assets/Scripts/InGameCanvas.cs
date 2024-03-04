@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,7 @@ public class InGameCanvas : MonoBehaviour
 {
     public Button ToggleButton;
     public RectTransform Box;
+    public TextMeshProUGUI Text_Objective;
 
     public bool opened = true;
 

@@ -6,6 +6,7 @@ public class BoosterPack : MonoBehaviour
 {
     public int packID = 0;
     public List<Sprite> packSprites;
+    public float shakeDuration = 0.3f;
 
     private BoardManager boardManager;
     private InGameCanvas inGameCanvas;
@@ -23,6 +24,15 @@ public class BoosterPack : MonoBehaviour
     [Header("Instantiated")]
     public GameObject CardPrefab;
 
+    [Header("Shader")]
+    [SerializeField] private float _dissolveTime = 0.75f;
+
+    private SpriteRenderer _spriteRenderer;
+    private Material _material;
+
+    private int _alphaAmount = Shader.PropertyToID("_AlphaAmount");
+    private int _outlineColor = Shader.PropertyToID("_OutlineColor");
+
     // Start is called before the first frame update
     void Start()
     {
@@ -33,6 +43,34 @@ public class BoosterPack : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         packContentsID = GetPackContent(packID);
+        
+        StartCoroutine(Shake(shakeDuration));
+        
+        //Shader part
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _spriteRenderer.material.mainTexture = _spriteRenderer.sprite.texture;
+        _material = _spriteRenderer.material;
+    }
+
+    private void VanishEvent()
+    {
+        StartCoroutine(Vanish());
+    }
+    
+    private IEnumerator Vanish()
+    {
+        float elapsedTime = 0f;
+        _material.SetColor(_outlineColor, Color.white);
+
+        while (elapsedTime < _dissolveTime) {
+            elapsedTime += Time.deltaTime;
+
+            float lerpedDissolve = Mathf.Lerp(1.1f, -0.1f, elapsedTime/_dissolveTime);
+
+            _material.SetFloat(_alphaAmount, lerpedDissolve);
+
+            yield return null;
+        }
     }
 
     private List<int> GetPackContent(int packID)
@@ -136,12 +174,24 @@ public class BoosterPack : MonoBehaviour
 
     private void OpenPack()
     {
-        CreateCardOrInspiration(packContentsID[cardAmountID], transform.position + Vector3.back * 0.1f, cardAmountID);
+        if (cardAmountID < packContentsID.Count) {
+            StartCoroutine(Shake(shakeDuration));
 
-        cardAmountID++;
-        if (cardAmountID == packContentsID.Count) {
-            Destroy(gameObject);
+            CreateCardOrInspiration(packContentsID[cardAmountID], transform.position + Vector3.back * 0.1f, cardAmountID);
+
+            cardAmountID++;
+            if (cardAmountID == packContentsID.Count) {
+                BoosterDestroy(gameObject);
+            }
         }
+    }
+
+    private void BoosterDestroy(GameObject gameObject)
+    {
+        Invoke("VanishEvent", 0.1f);
+
+        //Delayed Destroy
+        Destroy(gameObject, shakeDuration + _dissolveTime);
     }
 
     private Vector3 GetMousePos()
@@ -213,6 +263,21 @@ public class BoosterPack : MonoBehaviour
     private void BackToDynamic()
     {
         rb.bodyType = RigidbodyType2D.Dynamic;
+    }
+
+    private IEnumerator Shake(float shakeDuration)
+    {
+        float timer = 0f;
+        
+        while (timer < shakeDuration) {
+            
+            transform.localRotation = Quaternion.Euler(0f, 0f, 5f * Mathf.Sin(timer/shakeDuration * Mathf.PI * 6));
+
+            timer+= Time.deltaTime;
+            yield return null;
+        }
+
+        transform.localRotation = Quaternion.identity;
     }
 
     // Update is called once per frame
