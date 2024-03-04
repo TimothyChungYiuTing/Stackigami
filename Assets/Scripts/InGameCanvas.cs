@@ -11,8 +11,10 @@ public class InGameCanvas : MonoBehaviour
     public Button ToggleButton;
     public RectTransform Box;
     public TextMeshProUGUI Text_Objective;
+    public Image Notification;
 
     public bool opened = true;
+    private bool notificationStartDisappearing = false;
 
     private Vector3 ButtonOpen;
     private Vector3 ButtonClose;
@@ -39,7 +41,10 @@ public class InGameCanvas : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (opened && Notification.enabled && !notificationStartDisappearing) {
+            notificationStartDisappearing = true;
+            Invoke("Notification_Disappear", 15f);
+        }
     }
 
     public void ToggleRecipes()
@@ -58,6 +63,11 @@ public class InGameCanvas : MonoBehaviour
         foreach (RectTransform recipeRect in RecipeTransforms) {
             recipeRect.GetComponent<Recipe>().Seen();
         }
+    }
+    
+    private void Notification_Disappear()
+    {
+        Notification.enabled = false;
     }
 
     private IEnumerator MoveRecipeBox()
@@ -112,5 +122,8 @@ public class InGameCanvas : MonoBehaviour
         recipeContent.sizeDelta = new Vector2(recipeContent.sizeDelta.x, 50f + 250f * RecipeTransforms.Count);
 
         newRecipe.GetComponent<Recipe>().Setup(recipeData, made);
+
+        Notification.enabled = true;
+        notificationStartDisappearing = false;
     }
 }
