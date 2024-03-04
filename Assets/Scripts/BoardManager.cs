@@ -24,40 +24,13 @@ public class BoardManager : MonoBehaviour
 
     public GameObject curseFrame;
     public InteractableFrame riftFrame;
+    public InGameCanvas inGameCanvas;
 
     public bool oniDiscovered = false;
     public int stage = 0; //0: Start, 1: Pentagram discovered, 2: Rift 1 discovered
     public int objectiveStage = 0;
-    public List<String> objectiveTexts = new() {
-        "Objective:\tBuy an Incant Pack",
-        "Objective:\tComplete a Recipe",
-        "Objective:\tSell a Card",
-        "Objective:\tCreate a 2nd Conjurer",
-        "Objective:\tCraft a Pentagram",
-
-        "Objective:\tCreate a Shikigami",
-        "Objective:\tCraft a Spell",
-        "Objective:\tDiscover the Rift",
-        "Objective:\tSummon Ashiya Douman",
-        "Objective:\tDefeat Ashiya Douman",
-
-        "Objective:\tDefeat all enemies",
-    };
-    public List<Color> objectiveColors = new() {
-        Color.green,
-        Color.green,
-        Color.green,
-        Color.yellow,
-        Color.magenta,
-
-        Color.green,
-        Color.green,
-        Color.magenta,
-        Color.cyan,
-        Color.magenta,
-
-        Color.magenta,
-    };
+    public List<String> objectiveTexts;
+    public List<Color> objectiveColors;
     public bool AshiyaDouman_Defeated = false;
 
 
@@ -72,6 +45,13 @@ public class BoardManager : MonoBehaviour
     [Header("Recipe Management")]
     public List<CardDataManager.RecipeData>[] UndiscoveredRecipes_Stage = new List<CardDataManager.RecipeData>[3];
     public List<CardDataManager.RecipeData> DiscoveredRecipes = new();
+
+    public void ProceedStage(int objectiveStageIndex)
+    {
+        objectiveStage = objectiveStageIndex;
+        inGameCanvas.Text_Objective.text = objectiveTexts[objectiveStageIndex];
+        inGameCanvas.Text_Objective.color = objectiveColors[objectiveStageIndex];
+    }
 
     public void StartBattle(Card goodCard, Card evilCard)
     {
@@ -146,6 +126,40 @@ public class BoardManager : MonoBehaviour
     {
         gem = FindObjectOfType<Gem>();
         cardSpritesScript = FindObjectOfType<CardSprites>();
+
+        objectiveTexts = new() {
+            "Objective:\tOpen an Incant Pack",
+            "Objective:\tComplete a Recipe",
+            "Objective:\tSell a Card",
+            "Objective:\tCreate a 2nd Conjurer",
+            "Objective:\tDefeat an Oni",
+            "Objective:\tCraft a Pentagram",
+            "Objective:\tCreate a Shikigami",
+            "Objective:\tCraft a Spell",
+            "Objective:\tDefeat Hebi Onna",
+            "Objective:\tDiscover the Rift",
+            "Objective:\tSummon Ashiya Douman",
+            "Objective:\tDefeat Ashiya Douman",
+            "Objective:\tDefeat all enemies",
+            "Congratulations! You Win!",
+        };
+
+        objectiveColors = new() {
+            Color.green,
+            Color.green,
+            Color.green,
+            Color.yellow,
+            Color.magenta,
+            Color.yellow,
+            Color.yellow,
+            Color.green,
+            Color.magenta,
+            Color.yellow,
+            Color.cyan,
+            Color.magenta,
+            Color.magenta,
+            Color.green,
+        };
     }
 
     // Update is called once per frame
@@ -155,6 +169,7 @@ public class BoardManager : MonoBehaviour
             //TODO: Win Condition
             AshiyaDouman_Defeated = false;
             Debug.LogError("WIN!");
+            ProceedStage(13);
         }
 
         if (Input.GetKeyDown(KeyCode.Space)) {

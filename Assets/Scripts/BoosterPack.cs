@@ -176,6 +176,10 @@ public class BoosterPack : MonoBehaviour
 
     private void OpenPack()
     {
+        if (boardManager.objectiveStage == 0) {
+            boardManager.ProceedStage(1);
+        }
+        
         //Open the pack to create either a card or an inspiration
         if (cardAmountID < packContentsID.Count) {
             StartCoroutine(Shake(shakeDuration));
@@ -201,7 +205,7 @@ public class BoosterPack : MonoBehaviour
     {
         var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         //mousePos.z = -5f;
-        
+
         return mousePos;
     }
 

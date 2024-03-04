@@ -109,10 +109,25 @@ public class Card : MonoBehaviour
             if (id == 15 && !boardManager.oniDiscovered) {
                 boardManager.oniDiscovered = true;
                 boardManager.curseFrame.SetActive(true);
+                boardManager.ProceedStage(4);
             } else if (id == 18 && boardManager.stage == 0) {
                 boardManager.stage++;
+                boardManager.ProceedStage(6);
             } else if (id == 28 && boardManager.stage == 1) {
                 boardManager.stage++;
+                boardManager.ProceedStage(10);
+            } else if (id == 7 && boardManager.objectiveStage == 3) {
+                boardManager.ProceedStage(4);
+            } else if (id == 16 && boardManager.objectiveStage == 4) {
+                boardManager.ProceedStage(5);
+            } else if (cardInfo.type == 1 && id != 7 && id != 17 && boardManager.objectiveStage == 6) {
+                boardManager.ProceedStage(7);
+            } else if (cardInfo.type == 3 && boardManager.objectiveStage == 7) {
+                boardManager.ProceedStage(8);
+            } else if (id == 24 && boardManager.objectiveStage == 8) {
+                boardManager.ProceedStage(9);
+            } else if (id == 36 && boardManager.objectiveStage == 10) {
+                boardManager.ProceedStage(11);
             }
 
             //Assign Color & Style
@@ -261,6 +276,11 @@ public class Card : MonoBehaviour
 
     private void Die(Card card)
     {
+        //Objectives
+        if (id == 36 && boardManager.objectiveStage == 11) {
+            boardManager.ProceedStage(12);
+        }
+
         //Remove this from other cards' lists
         foreach (Card existingCard in boardManager.existingCardsList) {
             existingCard.ListOfOverlapped.Remove(card.gameObject);
@@ -719,6 +739,11 @@ public class Card : MonoBehaviour
         //Create Card
         CreateCard(recipe.GetRandomResultID());
 
+        //Update Objectives
+        if (boardManager.objectiveStage == 1) {
+            boardManager.ProceedStage(2);
+        }
+
         //Destroy Ingredients
         bool ingredientsDestroyed = false;
         foreach (Card card in stackedCards) {
@@ -973,12 +998,18 @@ public class Card : MonoBehaviour
                 foreach(Card ToBeSold in ToBeSoldList) {
                     InstantiateMoney(ToBeSold);
                     ToBeSold.CardDestroy();
+                    if (boardManager.objectiveStage == 2) {
+                        boardManager.ProceedStage(3);
+                    }
                 }
 
                 if (cardInfo.sellEffect != -1) {
                     //Check if current card is sellable, then sell it if true
                     InstantiateMoney(this);
                     CardDestroy();
+                    if (boardManager.objectiveStage == 2) {
+                        boardManager.ProceedStage(3);
+                    }
                 }
             }
             

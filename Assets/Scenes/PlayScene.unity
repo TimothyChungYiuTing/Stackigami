@@ -157,33 +157,40 @@ MonoBehaviour:
   existingCardsList: []
   curseFrame: {fileID: 1206469027}
   riftFrame: {fileID: 1161465842}
+  inGameCanvas: {fileID: 532849361}
   oniDiscovered: 0
   stage: 0
   objectiveStage: 0
   objectiveTexts:
-  - "Objective:\tBuy an Incant Pack"
-  - "Objective:\tComplete a Recipe"
-  - "Objective:\tSell a Card"
-  - "Objective:\tCreate a 2nd Conjurer"
-  - "Objective:\tCraft a Pentagram"
-  - "Objective:\tCreate a Shikigami"
-  - "Objective:\tCraft a Spell"
-  - "Objective:\tDiscover the Rift"
-  - "Objective:\tSummon Ashiya Douman"
-  - "Objective:\tDefeat Ashiya Douman"
-  - "Objective:\tDefeat all enemies"
+  - Objective:\tOpen an Incant Pack
+  - Objective:\tComplete a Recipe
+  - Objective:\tSell a Card
+  - Objective:\tCreate a 2nd Conjurer
+  - Objective:\tDefeat an Oni
+  - Objective:\tCraft a Pentagram
+  - Objective:\tCreate a Shikigami
+  - Objective:\tCraft a Spell
+  - Objective:\tDefeat Hebi Onna
+  - Objective:\tDiscover the Rift
+  - Objective:\tSummon Ashiya Douman
+  - Objective:\tDefeat Ashiya Douman
+  - Objective:\tDefeat all enemies
+  - You Won!
   objectiveColors:
-  - {r: 0, g: 1, b: 0, a: 1}
-  - {r: 0, g: 1, b: 0, a: 1}
-  - {r: 0, g: 1, b: 0, a: 1}
-  - {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  - {r: 1, g: 0, b: 1, a: 1}
-  - {r: 0, g: 1, b: 0, a: 1}
-  - {r: 0, g: 1, b: 0, a: 1}
-  - {r: 1, g: 0, b: 1, a: 1}
-  - {r: 0, g: 1, b: 1, a: 1}
-  - {r: 1, g: 0, b: 1, a: 1}
-  - {r: 1, g: 0, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0, a: 0}
+  - {r: 0, g: 1, b: 0, a: 0}
+  - {r: 0, g: 1, b: 0, a: 0}
+  - {r: 1, g: 1, b: 0, a: 0}
+  - {r: 1, g: 0, b: 1, a: 0}
+  - {r: 1, g: 1, b: 0, a: 0}
+  - {r: 1, g: 1, b: 0, a: 0}
+  - {r: 0, g: 1, b: 0, a: 0}
+  - {r: 1, g: 0, b: 1, a: 0}
+  - {r: 1, g: 1, b: 0, a: 0}
+  - {r: 0, g: 1, b: 1, a: 0}
+  - {r: 1, g: 0, b: 1, a: 0}
+  - {r: 1, g: 0, b: 1, a: 0}
+  - {r: 0, g: 1, b: 0, a: 0}
   AshiyaDouman_Defeated: 0
   BattleFramePrefab: {fileID: 2656491894021133196, guid: a7b8bd1abb877a14bafb1e3510d2248c, type: 3}
   BattleIDCounter: 0
@@ -683,7 +690,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00087817974}
+  m_AnchoredPosition: {x: 0, y: 0.0000076293945}
   m_SizeDelta: {x: 490, y: 300}
   m_Pivot: {x: 1, y: 1}
 --- !u!1 &175269819
@@ -954,7 +961,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 655562316}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999986
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
