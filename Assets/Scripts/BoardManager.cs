@@ -121,6 +121,55 @@ public class BoardManager : MonoBehaviour
             AshiyaDouman_Defeated = false;
             Debug.LogError("WIN!");
         }
+
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            List<int> uniqueIDs = new();
+            List<List<Card>> ListOfSameIDCardLists = new();
+
+            
+            foreach(Card card in existingCardsList) {
+                if (card.battleID == -1 && !card.inRift && !card.removed && card.stackable && card.prevCard == null && card.stackedCards.Count > 0) {
+                    //Check if id does not exist, then Check if all children cards are same. If same, add all cards a single SameIDCardList to be added to ListOfSameIDCardLists
+                }
+            }
+
+            foreach(Card card in existingCardsList) {
+                //Get all cards that can be autostacked
+                if (card.battleID == -1 && !card.inRift && !card.removed && card.stackable && card.prevCard == null && card.stackedCards.Count == 0) {
+                    if (!uniqueIDs.Contains(card.id)) {
+                        //Create new list
+                        List<Card> newCardList = new() { card };
+                        uniqueIDs.Add(card.id);
+                        ListOfSameIDCardLists.Add(newCardList);
+                    }
+                    else {
+                        //Add to list
+                        for (int i=0; i<uniqueIDs.Count; i++) {
+                            if (uniqueIDs[i] == card.id) {
+                                ListOfSameIDCardLists[i].Add(card);
+                            }
+                        }
+                    }
+                }
+            }
+
+            //TODO: Auto stack these cards in the lists
+            foreach (List<Card> SameIDCardList in ListOfSameIDCardLists) {
+                for(int i = 0; i < SameIDCardList.Count; i++) {
+                    if (i == 0) {
+                        SameIDCardList[i].isHost = true;
+                        SameIDCardList[i].prevCard = null;
+                    }
+                    else {
+                        SameIDCardList[i].isHost = false;
+                        SameIDCardList[i].prevCard = SameIDCardList[i-1];
+                    }
+
+                    if (i+1 < SameIDCardList.Count)
+                        SameIDCardList[i].stackedCards = SameIDCardList.GetRange(i+1, SameIDCardList.Count - (i+1));
+                }
+            }
+        }
     }
 
     private bool AllEnemiesDefeated()

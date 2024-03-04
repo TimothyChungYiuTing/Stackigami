@@ -65,7 +65,7 @@ public class Card : MonoBehaviour
     public bool frozen = false;
 
     [Header("Rift")]
-    private bool inRift = false;
+    [HideInInspector] public bool inRift = false;
     private int riftPos = -1;
 
     [Header("CraftedTimes")]
@@ -334,17 +334,19 @@ public class Card : MonoBehaviour
                 if (cardInfo.id == 7) {
                     CardBG.color = new Color(0.54f, 0.46f, 0.12f, 0.8f);
                     ChangeDrawnColor(new Color(1f, 0.97f, 0.87f, 0.9f), Color.black, Color.white);
+                    stackable = true;
                 }
                 else if (cardInfo.id == 17) {
                     CardBG.color = new Color(0.8f, 0.95f, 1f, 0.7f);
                     ChangeDrawnColor(new Color(0.1f, 0.2f, 0.8f, 0.9f), Color.white, Color.black);
+                    stackable = true;
                 }
                 else {
                     CardBG.color = new Color(0.66f, 0.75f, 0.92f, 0.7f);
                     ChangeDrawnColor(new Color(0.1f, 0.2f, 0.8f, 0.9f), Color.white, Color.black);
+                    stackable = false;
                 }
                 draggable = true;
-                stackable = true;
                 CardFrame.enabled = false;
                 CharacterSpriteRenderer.enabled = true;
                 AssignCharacterSprite();
