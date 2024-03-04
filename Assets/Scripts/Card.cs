@@ -292,21 +292,21 @@ public class Card : MonoBehaviour
             boardManager.AshiyaDouman_Defeated = true;
         }
 
-        CardDestroy(card);
+        card.CardDestroy();
     }
 
-    private void CardDestroy(Card card)
+    public void CardDestroy()
     {
-        boardManager.existingCardsList.Remove(card);
-        card.coll.enabled = false;
+        boardManager.existingCardsList.Remove(this);
+        coll.enabled = false;
         //TODO: Disappear sequence
-        card.removed = true;
-        card.StopAllCoroutines();
-        card.CancelInvoke();
-        card.StartCoroutine(Vanish());
+        removed = true;
+        StopAllCoroutines();
+        CancelInvoke();
+        StartCoroutine(Vanish());
 
         //Delayed Destroy
-        Destroy(card.gameObject, _dissolveTime);
+        Destroy(gameObject, _dissolveTime);
     }
 
     private void AssignTypeStyle()
@@ -731,7 +731,7 @@ public class Card : MonoBehaviour
                     card.craftedTimes++;
                 }
                 else {
-                    CardDestroy(card);
+                    card.CardDestroy();
                     ingredientsDestroyed = true;
                 }
             }
@@ -748,7 +748,7 @@ public class Card : MonoBehaviour
                 craftedTimes++;
             }
             else {
-                CardDestroy(this);
+                CardDestroy();
                 ingredientsDestroyed = true;
             }
         }
@@ -928,17 +928,17 @@ public class Card : MonoBehaviour
                 if (id == 25) {
                     //Apply Wither Effect
                     closestEnemyCard.Wither(cardInfo.attack, cardInfo.attackCD);
-                    CardDestroy(this);
+                    CardDestroy();
                 }
                 else if (id == 26) {
                     //Apply Freeze Effect
                     closestEnemyCard.Freeze(cardInfo.attackCD);
-                    CardDestroy(this);
+                    CardDestroy();
                 }
                 else if (id == 34) {
                     //Apply Shred Effect
                     closestEnemyCard.Shred(cardInfo.attack);
-                    CardDestroy(this);
+                    CardDestroy();
                 }
             }
         }
@@ -965,13 +965,13 @@ public class Card : MonoBehaviour
                 //Sell all recorded sellable stacked cards
                 foreach(Card ToBeSold in ToBeSoldList) {
                     InstantiateMoney(ToBeSold);
-                    CardDestroy(ToBeSold);
+                    ToBeSold.CardDestroy();
                 }
 
                 if (cardInfo.sellEffect != -1) {
                     //Check if current card is sellable, then sell it if true
                     InstantiateMoney(this);
-                    CardDestroy(this);
+                    CardDestroy();
                 }
             }
             
