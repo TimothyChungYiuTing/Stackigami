@@ -351,8 +351,13 @@ public class Card : MonoBehaviour
                 PositionYValues(-0.27f);
                 break;
             case 2: //Enemy
-                CardBG.color = new Color(1f, 0.75f, 0.9f, 0.9f);
-                ChangeDrawnColor(new Color(0.8f, 0.2f, 0.3f, 0.9f), Color.white, Color.black);
+                if (cardInfo.id == 36) {
+                    CardBG.color = new Color(0f, 0f, 0f, 0.9f);
+                    ChangeDrawnColor(new Color(1f, 0.3f, 0.4f, 0.9f), Color.white, Color.gray);
+                } else {
+                    CardBG.color = new Color(1f, 0.75f, 0.9f, 0.9f);
+                    ChangeDrawnColor(new Color(0.8f, 0.2f, 0.3f, 0.9f), Color.white, Color.black);
+                }
                 draggable = false;
                 stackable = false;
                 CardFrame.enabled = false;
@@ -360,7 +365,7 @@ public class Card : MonoBehaviour
                 AssignCharacterSprite();
                 PositionYValues(-0.27f);
 
-                InvokeRepeating("ChasePlayers", 1.5f, cardInfo.attackCD * 1.5f + 0.5f);
+                InvokeRepeating("ChasePlayers", 1.5f, cardInfo.attackCD / cardInfo.attack * 0.7f + 0.7f);
                 break;
             case 3: //Spell
                 CardBG.color = new Color(0.82f, 0.54f, 0.96f, 1f);
@@ -525,7 +530,7 @@ public class Card : MonoBehaviour
             t = Mathf.SmoothStep(0f, 1f, t);
             //Get closer to player with smoothlerp
             if (battleID == -1 && closestAttackableCard != null)
-            transform.position += (Vector3)((Vector2)(closestAttackableCard.transform.position - transform.position)).normalized * Time.deltaTime * 8f;
+            transform.position += (Vector3)((Vector2)(closestAttackableCard.transform.position - transform.position)).normalized * Time.deltaTime * 9f;
             
             timer += Time.deltaTime;
             yield return null;
