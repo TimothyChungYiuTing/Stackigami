@@ -80,6 +80,9 @@ public class Card : MonoBehaviour
     private int _alphaAmount = Shader.PropertyToID("_AlphaAmount");
     private int _outlineColor = Shader.PropertyToID("_OutlineColor");
 
+    [Header("Coroutine Management")]
+    public Coroutine lastCoroutine = null;
+
     // Start is called before the first frame update    
     void Start()
     {
@@ -547,7 +550,7 @@ public class Card : MonoBehaviour
 
     private void Attack()
     {
-        StartCoroutine(Hit(boardManager.GetOpponentCard(this, battleID), cardInfo.attackCD));
+        lastCoroutine = StartCoroutine(Hit(boardManager.GetOpponentCard(this, battleID), cardInfo.attackCD));
     }
 
     private IEnumerator Hit(Card opponentCard, float attackCD)
@@ -630,7 +633,7 @@ public class Card : MonoBehaviour
                 if (RecipeExists(id, stackedCards, cardDataManager.recipeDatas.recipeDataArray)) {
                     //Start Combining
                     ProgressBG.SetActive(true);
-                    StartCoroutine(Craft(combiningRecipe));
+                    lastCoroutine = StartCoroutine(Craft(combiningRecipe));
                 }
             }
 
@@ -777,10 +780,14 @@ public class Card : MonoBehaviour
         return AllCraftsFinished;
     }
 
-    private void ResetCombiningState()
+    public void ResetCombiningState()
     {
-        //Reset combining progress & Hide progress bar
-        StopCoroutine("Craft");
+        //Reset combining progress & Hide progress bar        
+        if (lastCoroutine != null) {
+            StopCoroutine(lastCoroutine);
+            lastCoroutine = null;
+        }
+        
         ProgressBG.SetActive(false);
         combiningRecipe = null;
     }
@@ -1278,11 +1285,48 @@ public class Card : MonoBehaviour
     {
         //Check from Ally cards if any collisions with enemies
             //(Check from Ally because in case Ally is in rift and is Kinematic)
+        Card otherCard = other.transform.GetComponent<Card>();
         if (cardInfo.type == 1 && battleID == -1) {
-            Card otherCard = other.transform.GetComponent<Card>();
             if (otherCard != null && otherCard.cardInfo.type == 2 && otherCard.battleID == -1)
                 StartBattle(this, otherCard);
                 
+        }
+
+        if (draggable) {
+            //Record Stackable Cards
+            if (otherCard != null && otherCard.stackable && !stackedCards.Contains(otherCard)) {
+                if ((otherCard.cardInfo.type != 1 && otherCard.cardInfo.type != 2 && otherCard.cardInfo.type != 3) || otherCard.cardInfo.id == 7 || otherCard.cardInfo.id == 17)
+                    ListOfOverlapped.Add(other.gameObject);
+            }
+
+            //Record Ememies
+            if (otherCard != null && otherCard.cardInfo.type == 2) {
+                ListOfOverlappedEnemies.Add(other.gameObject);
+            }
+
+            //Record Frames
+            if (other.gameObject.layer == LayerMask.NameToLayer("InteractableFrame")) {
+                ListOfOverlappedFrame.Add(other.gameObject);
+            }
+        }
+    }
+    private void OnCollisionExit2D(Collision2D other)
+    {
+        //Record Stackable Cards
+        Card otherCard = other.transform.GetComponent<Card>();
+        if (otherCard != null) {
+            if ((otherCard.cardInfo.type != 1 && otherCard.cardInfo.type != 2 && otherCard.cardInfo.type != 3) || otherCard.cardInfo.id == 7 || otherCard.cardInfo.id == 17)
+                ListOfOverlapped.Remove(other.gameObject);
+        }
+
+        //Record Ememies
+        if (otherCard != null && otherCard.cardInfo.type == 2) {
+            ListOfOverlappedEnemies.Remove(other.gameObject);
+        }
+
+        //Record Frames
+        if (other.gameObject.layer == LayerMask.NameToLayer("InteractableFrame")) {
+            ListOfOverlappedFrame.Remove(other.gameObject);
         }
     }
     

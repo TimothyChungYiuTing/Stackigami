@@ -440,9 +440,9 @@
             "sellEffect": -1,
             "attack": 2,
             "attackCD": 0.7,
-            "health": 18,
+            "health": 19,
             "attr": 4,
-            "drops": [32, 32]
+            "drops": [32, 32, 32]
         },
         {
             "id": 37,

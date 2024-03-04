@@ -129,7 +129,7 @@
             "protect": [7, 18]
         },
         {
-            "ingredients": [24, 10, 7],
+            "ingredients": [24, 4, 7],
             "time": 7,
             "drops": [25],
             "chance": [1],
@@ -137,7 +137,7 @@
             "protect": [7]
         },
         {
-            "ingredients": [2, 13, 7],
+            "ingredients": [2, 11, 7],
             "time": 7,
             "drops": [26],
             "chance": [1],

@@ -55,7 +55,7 @@ public class BoardManager : MonoBehaviour
         Color.magenta,
         Color.cyan,
         Color.magenta,
-        
+
         Color.magenta,
     };
     public bool AshiyaDouman_Defeated = false;
@@ -124,8 +124,11 @@ public class BoardManager : MonoBehaviour
 
                 participant.battleID = -1;
                 participant.rb.bodyType = RigidbodyType2D.Dynamic;
-
-                participant.StopCoroutine("Hit");
+                
+                if (participant.lastCoroutine != null) {
+                    participant.StopCoroutine(participant.lastCoroutine);
+                    participant.lastCoroutine = null;
+                }
                 participant.CancelInvoke("Attack");
                 participant.transform.localScale = Vector3.one;
                 participant.transform.localRotation = Quaternion.identity;

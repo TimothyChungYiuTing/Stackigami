@@ -201,6 +201,7 @@ public class BoosterPack : MonoBehaviour
     {
         var mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         //mousePos.z = -5f;
+        
         return mousePos;
     }
 
