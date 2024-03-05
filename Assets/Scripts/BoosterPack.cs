@@ -33,14 +33,19 @@ public class BoosterPack : MonoBehaviour
     private int _alphaAmount = Shader.PropertyToID("_AlphaAmount");
     private int _outlineColor = Shader.PropertyToID("_OutlineColor");
 
+    [Header("Audio")]
+    private AudioSource audioSource;
+
     // Start is called before the first frame update
     void Start()
     {
         boardManager = FindObjectOfType<BoardManager>();
         inGameCanvas = FindObjectOfType<InGameCanvas>();
         GetComponent<SpriteRenderer>().sprite = packSprites[packID];
+        
         coll = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
+        audioSource = GetComponent<AudioSource>();
 
         packContentsID = GetPackContent(packID);
         
@@ -168,8 +173,6 @@ public class BoosterPack : MonoBehaviour
                 coll.isTrigger = false;
 
                 if (Time.time - pickUpTime < 0.4f && Vector3.Distance(GetMousePos(), dragStartMousePos) < 1.0f) {
-                    Debug.Log("Clicked on PACK");
-
                     OpenPack();
 
                     CancelInvoke("BackToDynamic");
@@ -182,6 +185,8 @@ public class BoosterPack : MonoBehaviour
 
     private void OpenPack()
     {
+        audioSource.Play();
+
         if (boardManager.objectiveStage == 0) {
             boardManager.ProceedStage(1);
         }

@@ -87,6 +87,13 @@ public class Card : MonoBehaviour
     public List<AudioClip> audioClips;
     private AudioSource audioSource;
 
+    [Header("Float")]
+    public bool playFlipAudioOnStart = true;
+    public bool floatingRandom = false;
+    private Vector3 randomFloatDir;
+    private int randomRotateDir = 1;
+    private float randomDistance = 0.5f;
+
     // Start is called before the first frame update    
     void Start()
     {
@@ -94,10 +101,21 @@ public class Card : MonoBehaviour
         coll = GetComponent<BoxCollider2D>();
         audioSource = GetComponent<AudioSource>();
         
-        audioSource.pitch = 1f;
-        audioSource.clip = audioClips[1];
-        audioSource.Play();
-        
+        if (playFlipAudioOnStart) {
+            audioSource.pitch = 1f;
+            audioSource.clip = audioClips[1];
+            audioSource.Play();
+        }
+
+        if (floatingRandom) {
+            id = Random.Range(2, 36);
+            randomFloatDir = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
+            coll.enabled = false;
+            randomRotateDir = (Random.Range(0, 2) == 0)?1:-1;
+            randomDistance = Random.Range(0.1f, 0.7f);
+            transform.localScale = Vector3.one * randomDistance;
+        }
+
         combiningRecipe = null;
         cardDataManager = FindObjectOfType<CardDataManager>();
         boardManager = FindObjectOfType<BoardManager>();
@@ -115,30 +133,32 @@ public class Card : MonoBehaviour
         }
         else {
             //Stage management
-            if (id == 15 && !boardManager.oniDiscovered) {
-                boardManager.oniDiscovered = true;
-                boardManager.curseFrame.SetActive(true);
-                boardManager.ProceedStage(4);
-            } else if (id == 18 && boardManager.stage == 0) {
-                AudioManager.Instance.ChangeSong(1);
-                boardManager.stage++;
-                boardManager.ProceedStage(6);
-            } else if (id == 28 && boardManager.stage == 1) {
-                boardManager.stage++;
-                boardManager.ProceedStage(10);
-            } else if (id == 7 && boardManager.objectiveStage == 3) {
-                boardManager.ProceedStage(4);
-            } else if (id == 16 && boardManager.objectiveStage == 4) {
-                boardManager.ProceedStage(5);
-            } else if (cardInfo.type == 1 && id != 7 && id != 17 && boardManager.objectiveStage == 6) {
-                boardManager.ProceedStage(7);
-            } else if (cardInfo.type == 3 && boardManager.objectiveStage == 7) {
-                boardManager.ProceedStage(8);
-            } else if (id == 24 && boardManager.objectiveStage == 8) {
-                boardManager.ProceedStage(9);
-            } else if (id == 36 && boardManager.objectiveStage == 10) {
-                boardManager.ProceedStage(11);
-            }
+            if (!floatingRandom) {
+                if (id == 15 && !boardManager.oniDiscovered) {
+                    boardManager.oniDiscovered = true;
+                    boardManager.curseFrame.SetActive(true);
+                    boardManager.ProceedStage(4);
+                } else if (id == 18 && boardManager.stage == 0) {
+                    AudioManager.Instance.ChangeSong(1);
+                    boardManager.stage++;
+                    boardManager.ProceedStage(6);
+                } else if (id == 28 && boardManager.stage == 1) {
+                    boardManager.stage++;
+                    boardManager.ProceedStage(10);
+                } else if (id == 7 && boardManager.objectiveStage == 3) {
+                    boardManager.ProceedStage(4);
+                } else if (id == 16 && boardManager.objectiveStage == 4) {
+                    boardManager.ProceedStage(5);
+                } else if (cardInfo.type == 1 && id != 7 && id != 17 && boardManager.objectiveStage == 6) {
+                    boardManager.ProceedStage(7);
+                } else if (cardInfo.type == 3 && boardManager.objectiveStage == 7) {
+                    boardManager.ProceedStage(8);
+                } else if (id == 24 && boardManager.objectiveStage == 8) {
+                    boardManager.ProceedStage(9);
+                } else if (id == 36 && boardManager.objectiveStage == 10) {
+                    boardManager.ProceedStage(11);
+                }
+            }            
 
             //Assign Color & Style
             AssignTypeStyle();
@@ -203,7 +223,7 @@ public class Card : MonoBehaviour
                 if (recipeData.drops[0] == id) {
                     boardManager.DiscoveredRecipes.Add(recipeData);
                     boardManager.UndiscoveredRecipes_Stage[i].Remove(recipeData);
-                    FindObjectOfType<InGameCanvas>().AddRecipe(recipeData, true);
+                    FindObjectOfType<InGameCanvas>()?.AddRecipe(recipeData, true);
                     break;
                 }
             }
@@ -286,6 +306,10 @@ public class Card : MonoBehaviour
 
     private void Die(Card card)
     {
+        audioSource.pitch = 1.0f;
+        audioSource.clip = audioClips[3];
+        audioSource.Play();
+
         //Objectives
         if (id == 36 && boardManager.objectiveStage == 11) {
             boardManager.ProceedStage(12);
@@ -400,7 +424,8 @@ public class Card : MonoBehaviour
                 AssignCharacterSprite();
                 PositionYValues(-0.27f);
 
-                InvokeRepeating("ChasePlayers", 1.5f, cardInfo.attackCD / cardInfo.attack * 0.7f + 0.7f);
+                if (!floatingRandom)
+                    InvokeRepeating("ChasePlayers", 1.5f, cardInfo.attackCD / cardInfo.attack * 0.7f + 0.7f);
                 break;
             case 3: //Spell
                 CardBG.color = new Color(0.82f, 0.54f, 0.96f, 1f);
@@ -622,6 +647,13 @@ public class Card : MonoBehaviour
 
         //Deal damage, Instantiate DamagePrefab
         if (!frozen) {
+            if (cardInfo.type == 1)
+                audioSource.pitch = 1.0f;
+            else if (cardInfo.type == 2)
+                audioSource.pitch = 0.9f;
+            audioSource.clip = audioClips[2];
+            audioSource.Play();
+
             opponentCard.cardInfo.currentHealth -= cardInfo.attack;
             GameObject damageVisual = Instantiate(DamagePrefab, opponentCard.transform.position + Vector3.back * 0.4f + Vector3.right * Random.Range(-0.6f, 0.6f) + Vector3.up * Random.Range(-1.2f, 1.2f), Quaternion.Euler(0f, 0f, Random.Range(-45f, 45f)));
             damageVisual.GetComponent<Damage>().side = cardInfo.type;
@@ -704,7 +736,7 @@ public class Card : MonoBehaviour
             }
 
             //Make card transform normal if not in battle
-            if (battleID == -1) {
+            if (battleID == -1 && !floatingRandom) {
                 transform.localScale = Vector3.one;
                 transform.localRotation = Quaternion.identity;
                 HurtFilter.color = new Color(HurtFilter.color.r, HurtFilter.color.g, HurtFilter.color.b, 0f);
@@ -721,6 +753,11 @@ public class Card : MonoBehaviour
                 cardInfo.currentHealth = 0;
             }
 
+        }
+
+        if (floatingRandom) {
+            transform.position += randomFloatDir * 5f * Time.deltaTime * randomDistance;
+            transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z + 40f * Time.deltaTime * randomRotateDir);
         }
     }
 
@@ -1135,6 +1172,10 @@ public class Card : MonoBehaviour
 
     public void Freeze(float attackCD)
     {
+        audioSource.pitch = 1.0f;
+        audioSource.clip = audioClips[4];
+        audioSource.Play();
+
         frozen = true;
         StartCoroutine(FreezeEffects(attackCD));
     }
@@ -1155,6 +1196,10 @@ public class Card : MonoBehaviour
 
     public void Wither(int attack, float attackCD)
     {
+        audioSource.pitch = 1.0f;
+        audioSource.clip = audioClips[5];
+        audioSource.Play();
+
         withering = true;
         StartCoroutine(WitherEffects(attack, attackCD, 3));
     }
@@ -1184,6 +1229,10 @@ public class Card : MonoBehaviour
 
     public void Shred(int attack)
     {
+        audioSource.pitch = 1.0f;
+        audioSource.clip = audioClips[6];
+        audioSource.Play();
+
         cardInfo.currentHealth -= attack;
 
         GameObject damageVisual = Instantiate(DamagePrefab, transform.position + Vector3.back * 0.4f + Vector3.right * Random.Range(-0.6f, 0.6f) + Vector3.up * Random.Range(-1.2f, 1.2f), Quaternion.Euler(0f, 0f, Random.Range(-45f, 45f)));

@@ -18,6 +18,8 @@ public class Battle {
 }
 public class BoardManager : MonoBehaviour
 {
+    public bool realGame = true;
+
     public Gem gem;
     public CardSprites cardSpritesScript;
     public List<Card> existingCardsList = new();
@@ -36,6 +38,7 @@ public class BoardManager : MonoBehaviour
 
     [Header("Instantiated")]
     public GameObject BattleFramePrefab;
+    public GameObject CardPrefab;
 
 
     [Header("Battle")]
@@ -49,6 +52,10 @@ public class BoardManager : MonoBehaviour
     [Header("Recipe Management")]
     public List<AudioClip> audioClips;
     private AudioSource audioSource;
+
+    [Header("DebugCards")]
+    private bool cardInputting = false;
+    private string typedCardsIDAlphaString = "";
 
     public void ProceedStage(int objectiveStageIndex)
     {
@@ -177,7 +184,7 @@ public class BoardManager : MonoBehaviour
             ProceedStage(13);
         }
 
-        if (Input.GetKeyDown(KeyCode.Space)) {
+        if (realGame && Input.GetKeyDown(KeyCode.Space)) {
             List<int> uniqueIDs = new();
             List<List<Card>> ListOfSameIDCardLists = new();
             bool hasChanged = false;
@@ -260,6 +267,46 @@ public class BoardManager : MonoBehaviour
                 audioSource.Play();
             }
         }
+
+        
+
+        //Debug Cards! Debug ONLY
+
+        if (Input.GetKeyDown(KeyCode.C)) {
+            cardInputting = true;
+        }
+
+        if (Input.GetKeyUp(KeyCode.C)) {
+            cardInputting = false;
+
+            if (typedCardsIDAlphaString != "") {
+                int id = int.Parse(typedCardsIDAlphaString);
+                if (id < 38 && id != 1)
+                    CreateCard(id);
+            }
+
+            typedCardsIDAlphaString = "";
+        }
+
+        if (cardInputting) {
+            if (Input.GetKeyDown(KeyCode.Alpha0)) typedCardsIDAlphaString += "0";
+            if (Input.GetKeyDown(KeyCode.Alpha1)) typedCardsIDAlphaString += "1";
+            if (Input.GetKeyDown(KeyCode.Alpha2)) typedCardsIDAlphaString += "2";
+            if (Input.GetKeyDown(KeyCode.Alpha3)) typedCardsIDAlphaString += "3";
+            if (Input.GetKeyDown(KeyCode.Alpha4)) typedCardsIDAlphaString += "4";
+            if (Input.GetKeyDown(KeyCode.Alpha5)) typedCardsIDAlphaString += "5";
+            if (Input.GetKeyDown(KeyCode.Alpha6)) typedCardsIDAlphaString += "6";
+            if (Input.GetKeyDown(KeyCode.Alpha7)) typedCardsIDAlphaString += "7";
+            if (Input.GetKeyDown(KeyCode.Alpha8)) typedCardsIDAlphaString += "8";
+            if (Input.GetKeyDown(KeyCode.Alpha9)) typedCardsIDAlphaString += "9";
+        }
+    }
+
+    private void CreateCard(int cardID)
+    {
+        //Instantiate card and change ID
+        GameObject NewCard = Instantiate(CardPrefab, new Vector3(0f, 0f, -2.5f), Quaternion.identity);
+        NewCard.GetComponent<Card>().id = cardID;
     }
 
     private bool AllEnemiesDefeated()

@@ -21,21 +21,8 @@ public class GameManager : Singleton<GameManager>
     void Update()
     {
         //Debug
-        if (Input.GetKeyDown(KeyCode.R)) {
+        if (Input.GetKey(KeyCode.R) && Input.GetKeyDown(KeyCode.Return)) {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
-
-    /*
-    public void LoadNextGame()
-    {
-        AudioManager.Instance.Fade();
-        Invoke("SceneChangeNextGame", 0.7f);
-    }
-    private void SceneChangeNextGame()
-    {
-        SceneManager.LoadScene(sceneNames[currentGameIndex], LoadSceneMode.Single);
-        AudioManager.Instance.ChangeSong(currentGameIndex + 3);
-    }
-    */
 }

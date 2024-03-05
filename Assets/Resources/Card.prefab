@@ -1519,6 +1519,13 @@ MonoBehaviour:
   audioClips:
   - {fileID: 8300000, guid: e5c6a000780851248bf0acfa52f670c4, type: 3}
   - {fileID: 8300000, guid: 408d2f873e9dd0243b7140dc3b8db79c, type: 3}
+  - {fileID: 8300000, guid: a16ada0f704281944a621e19b939056f, type: 3}
+  - {fileID: 8300000, guid: 0d2768b867bebf04498e18433e356a3b, type: 3}
+  - {fileID: 8300000, guid: 8d95d37554707b7498f2c4db3dcb33b0, type: 3}
+  - {fileID: 8300000, guid: d8a1804ae616e0044a13a92d3e91a5a9, type: 3}
+  - {fileID: 8300000, guid: 9c9df56dc49a50c428f005c8ec76b0f3, type: 3}
+  playFlipAudioOnStart: 1
+  floatingRandom: 0
 --- !u!61 &8841105912346891719
 BoxCollider2D:
   m_ObjectHideFlags: 0

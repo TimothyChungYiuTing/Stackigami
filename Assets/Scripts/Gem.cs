@@ -32,7 +32,12 @@ public class Gem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKey(KeyCode.K) && Input.GetKey(KeyCode.C) && Input.GetKey(KeyCode.U) && Input.GetKeyDown(KeyCode.F)) {
+            Text_Amount.text = "999";
+        }
+        if (Input.GetKeyDown(KeyCode.K) && Input.GetKey(KeyCode.C) && Input.GetKey(KeyCode.U) && Input.GetKey(KeyCode.F)) {
+            Text_Amount.text = "3";
+        }
     }
     
 
