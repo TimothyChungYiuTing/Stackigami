@@ -17,11 +17,16 @@ public class Gem : MonoBehaviour
     private InteractableFrame incantFrame = null;
     private InteractableFrame inspirationFrame = null;
     private InteractableFrame curseFrame = null;
+    
+    [Header("Audio")]
+    private AudioSource audioSource;
+    
 
     // Start is called before the first frame update
     void Start()
     {
         coll = GetComponent<Collider2D>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -36,6 +41,10 @@ public class Gem : MonoBehaviour
         transform.position += Vector3.up * 0.15f;
         dragStartPos = transform.position;
         dragStartMousePos = GetMousePos();
+
+        audioSource.volume = 1f;
+        audioSource.pitch = 1.1f;
+        audioSource.Play();
     }
 
     private void OnMouseDrag()
@@ -51,6 +60,10 @@ public class Gem : MonoBehaviour
     private void OnMouseUp()
     {
         if (isDragging) {
+            audioSource.volume = 1f;
+            audioSource.pitch = 1f;
+            audioSource.Play();
+
             isDragging = false;
             transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.y * 0.1f - 2.5f);
 
@@ -114,5 +127,12 @@ public class Gem : MonoBehaviour
                 curseFrame = null;
             }
         }
+    }
+
+    void OnCollisionEnter2D(Collision2D other)
+    {
+        audioSource.volume = 0.7f;
+        audioSource.pitch = Random.Range(1.2f, 1.3f);
+        audioSource.Play();
     }
 }

@@ -8,6 +8,8 @@ public class GemMoney : MonoBehaviour
     private Gem gem;
     private Collider2D coll;
     private SpriteRenderer spriteRenderer;
+    
+    [Header("Audio")]
     private AudioSource audioSource;
     // Start is called before the first frame update
     void Start()

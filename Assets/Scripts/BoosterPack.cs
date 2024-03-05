@@ -135,41 +135,47 @@ public class BoosterPack : MonoBehaviour
 
     private void OnMouseDown()
     {
-        transform.position += Vector3.up * 0.15f;
-        dragStartPos = transform.position;
-        dragStartMousePos = GetMousePos();
+        if (cardAmountID < packContentsID.Count) {
+            transform.position += Vector3.up * 0.15f;
+            dragStartPos = transform.position;
+            dragStartMousePos = GetMousePos();
 
-        pickUpTime = Time.time;
+            pickUpTime = Time.time;
+        }
     }
 
     private void OnMouseDrag()
     {
         //Make Gem isDragging and not interact
-        transform.position = dragStartPos + GetMousePos() - dragStartMousePos;
-        transform.position = new Vector3(transform.position.x, transform.position.y, -5f);
-        isDragging = true;
+        if (cardAmountID < packContentsID.Count) {
+            transform.position = dragStartPos + GetMousePos() - dragStartMousePos;
+            transform.position = new Vector3(transform.position.x, transform.position.y, -5f);
+            isDragging = true;
 
-        coll.isTrigger = true;
+            coll.isTrigger = true;
+        }
     }
 
     private void OnMouseUp()
     {
         if (isDragging) {
-            transform.position -= Vector3.up * 0.15f;
-            
-            isDragging = false;
-            transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.y * 0.1f - 2.5f);
+            if (cardAmountID < packContentsID.Count) {
+                transform.position -= Vector3.up * 0.15f;
+                
+                isDragging = false;
+                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.y * 0.1f - 2.5f);
 
-            coll.isTrigger = false;
+                coll.isTrigger = false;
 
-            if (Time.time - pickUpTime < 0.4f && Vector3.Distance(GetMousePos(), dragStartMousePos) < 1.0f) {
-                Debug.Log("Clicked on PACK");
+                if (Time.time - pickUpTime < 0.4f && Vector3.Distance(GetMousePos(), dragStartMousePos) < 1.0f) {
+                    Debug.Log("Clicked on PACK");
 
-                OpenPack();
+                    OpenPack();
 
-                CancelInvoke("BackToDynamic");
-                rb.bodyType = RigidbodyType2D.Kinematic;
-                Invoke("BackToDynamic", 0.2f);
+                    CancelInvoke("BackToDynamic");
+                    rb.bodyType = RigidbodyType2D.Kinematic;
+                    Invoke("BackToDynamic", 0.2f);
+                }
             }
         }
     }
@@ -179,17 +185,15 @@ public class BoosterPack : MonoBehaviour
         if (boardManager.objectiveStage == 0) {
             boardManager.ProceedStage(1);
         }
-        
+
         //Open the pack to create either a card or an inspiration
-        if (cardAmountID < packContentsID.Count) {
-            StartCoroutine(Shake(shakeDuration));
+        StartCoroutine(Shake(shakeDuration));
 
-            CreateCardOrInspiration(packContentsID[cardAmountID], transform.position + Vector3.back * 0.1f, cardAmountID);
+        CreateCardOrInspiration(packContentsID[cardAmountID], transform.position + Vector3.back * 0.1f, cardAmountID);
 
-            cardAmountID++;
-            if (cardAmountID == packContentsID.Count) {
-                BoosterDestroy(gameObject);
-            }
+        cardAmountID++;
+        if (cardAmountID == packContentsID.Count) {
+            BoosterDestroy(gameObject);
         }
     }
 

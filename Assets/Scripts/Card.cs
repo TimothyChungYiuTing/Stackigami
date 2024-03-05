@@ -93,7 +93,11 @@ public class Card : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<BoxCollider2D>();
         audioSource = GetComponent<AudioSource>();
-
+        
+        audioSource.pitch = 1f;
+        audioSource.clip = audioClips[1];
+        audioSource.Play();
+        
         combiningRecipe = null;
         cardDataManager = FindObjectOfType<CardDataManager>();
         boardManager = FindObjectOfType<BoardManager>();
