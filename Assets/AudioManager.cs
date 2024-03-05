@@ -12,6 +12,7 @@ public class AudioManager : Singleton<AudioManager>
 	private int currentSongIndex = 0;
     private int newSongIndex = 0;
     private float trackTimer = 0f;
+    public float spatialBlend = 0f;
 
     new void Awake() {
         base.Awake();
@@ -26,6 +27,7 @@ public class AudioManager : Singleton<AudioManager>
 
     void Update() {
         audioSource.volume = volume * multipliedVolume;
+        audioSource.spatialBlend = spatialBlend;
 
         if (audioSource.isPlaying) {
             trackTimer += Time.deltaTime;
@@ -50,9 +52,11 @@ public class AudioManager : Singleton<AudioManager>
 	}
 
 	public void ChangeSong(int songIndex) {
-        FadeOut();
-        newSongIndex = songIndex;
-        Invoke("FadeIn", 5f);
+        if (currentSongIndex != songIndex) {
+            FadeOut();
+            newSongIndex = songIndex;
+            Invoke("FadeIn", 5f);
+        }
 	}
 
 	public void Stop() {

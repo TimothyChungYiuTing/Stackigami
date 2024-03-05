@@ -22,6 +22,9 @@ public class GameManager : Singleton<GameManager>
     {
         //Debug
         if (Input.GetKey(KeyCode.R) && Input.GetKeyDown(KeyCode.Return)) {
+            Time.timeScale = 1f;
+            AudioManager.Instance.ChangeSong(0);
+            AudioManager.Instance.spatialBlend = 0f;
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }

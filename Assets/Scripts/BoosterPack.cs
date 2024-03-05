@@ -42,7 +42,7 @@ public class BoosterPack : MonoBehaviour
         boardManager = FindObjectOfType<BoardManager>();
         inGameCanvas = FindObjectOfType<InGameCanvas>();
         GetComponent<SpriteRenderer>().sprite = packSprites[packID];
-        
+
         coll = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
         audioSource = GetComponent<AudioSource>();
@@ -235,6 +235,7 @@ public class BoosterPack : MonoBehaviour
             else {
                 offset = Vector3.up * 2.5f;
             }
+
             GameObject NewCard = Instantiate(CardPrefab, createPos + offset, Quaternion.identity);
 
             //Around 12.5% of the time being a phantom
@@ -243,6 +244,10 @@ public class BoosterPack : MonoBehaviour
             }
             else {
                 NewCard.GetComponent<Card>().id = cardID;
+            }
+            
+            if (boardManager.endless && cardAmountID == 0) {
+                NewCard.GetComponent<Card>().id = 36;
             }
         }
         else {
@@ -267,12 +272,7 @@ public class BoosterPack : MonoBehaviour
                     boardManager.UndiscoveredRecipes_Stage[i].Remove(randomRecipeData);
                 }
 
-                //TODO: Show in UI
                 inGameCanvas.AddRecipe(boardManager.DiscoveredRecipes[^1], false);
-
-            } else {
-                //TODO: Tell player that all Available Recipes are discovered
-                
             }
         }
     }

@@ -340,8 +340,15 @@ public class Card : MonoBehaviour
                     conjuratorNum++;
             }
             if (conjuratorNum == 1) {
-                //TODO: Lose Condition, Restart
-                Debug.LogError("LOSTTT");
+                //TODO: Lose Condition
+                boardManager.inGameCanvas.Lost.SetActive(true);
+                boardManager.DisableColliders();
+                boardManager.gem.GetComponent<Collider2D>().enabled = false;
+                
+                Time.timeScale = 0.3f;
+                AudioManager.Instance.spatialBlend = 0.7f;
+                
+                boardManager.lost = true;
             }
         }
 
@@ -356,7 +363,8 @@ public class Card : MonoBehaviour
     {
         boardManager.existingCardsList.Remove(this);
         coll.enabled = false;
-        //TODO: Disappear sequence
+
+        //Disappear sequence
         removed = true;
         StopAllCoroutines();
         CancelInvoke();
@@ -998,7 +1006,7 @@ public class Card : MonoBehaviour
             return false;
         }
 
-        //TODO: Spell Interactions
+        //Spell Interactions
         if (cardInfo.type == 3 && ListOfOverlappedEnemies.Count > 0) {
             //Get closest enemy card
             float distance = 9999f;
@@ -1217,6 +1225,11 @@ public class Card : MonoBehaviour
             timer += Time.deltaTime;
             yield return null;
         }
+        
+        audioSource.pitch = 0.25f;
+        audioSource.clip = audioClips[2];
+        audioSource.Play();
+
         cardInfo.currentHealth -= attack;
         WitherFilter.color = new Color(WitherFilter.color.r, WitherFilter.color.g, WitherFilter.color.b, 0f);
 

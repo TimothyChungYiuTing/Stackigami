@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public enum InteractMode {Sell, Incant, Inspiration, Curse, Rift}

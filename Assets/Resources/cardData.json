@@ -392,7 +392,7 @@
             "sellEffect": -1,
             "attack": 3,
             "attackCD": 2.1,
-            "health": 9,
+            "health": 13,
             "attr": 0,
             "drops": [33]
         },

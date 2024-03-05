@@ -57,6 +57,11 @@ public class BoardManager : MonoBehaviour
     private bool cardInputting = false;
     private string typedCardsIDAlphaString = "";
 
+    [Header("Won or Lost")]
+    [HideInInspector] public bool lost = false;
+    [HideInInspector] public bool won = false;
+    [HideInInspector] public bool endless = false;
+
     public void ProceedStage(int objectiveStageIndex)
     {
         objectiveStage = objectiveStageIndex;
@@ -143,7 +148,7 @@ public class BoardManager : MonoBehaviour
             "Objective:\tOpen an Incant Pack",
             "Objective:\tComplete a Recipe",
             "Objective:\tSell a Card",
-            "Objective:\tCreate a 2nd Conjurer",
+            "Objective:\tCreate a 2nd Conjurator",
             "Objective:\tDefeat an Oni",
             "Objective:\tCraft a Pentagram",
             "Objective:\tCreate a Shikigami",
@@ -180,11 +185,19 @@ public class BoardManager : MonoBehaviour
         if (AshiyaDouman_Defeated && AllEnemiesDefeated()) {
             //TODO: Win Condition
             AshiyaDouman_Defeated = false;
-            Debug.LogError("WIN!");
             ProceedStage(13);
+            
+            inGameCanvas.Won.SetActive(true);
+            DisableColliders();
+            gem.GetComponent<Collider2D>().enabled = false;
+            
+            Time.timeScale = 0.3f;
+            AudioManager.Instance.spatialBlend = 0.7f;
+
+            won = true;
         }
 
-        if (realGame && Input.GetKeyDown(KeyCode.Space)) {
+        if (realGame && !lost && !(won && !endless) && Input.GetKeyDown(KeyCode.Space)) {
             List<int> uniqueIDs = new();
             List<List<Card>> ListOfSameIDCardLists = new();
             bool hasChanged = false;
@@ -268,8 +281,10 @@ public class BoardManager : MonoBehaviour
             }
         }
 
+        if (won && !endless && Input.GetKeyDown(KeyCode.P)) {
+            EndlessSuffering();
+        }
         
-
         //Debug Cards! Debug ONLY
 
         if (Input.GetKeyDown(KeyCode.C)) {
@@ -358,5 +373,31 @@ public class BoardManager : MonoBehaviour
         for (int i=1; i < recipeDatas.Length; i++) {
             UndiscoveredRecipes_Stage[recipeDatas[i].recipeStage].Add(recipeDatas[i]);
         }
+    }
+
+    public void DisableColliders()
+    {
+        foreach (Card card in existingCardsList) {
+            card.coll.enabled = false;
+        }
+    }
+
+    public void EnableColliders()
+    {
+        foreach (Card card in existingCardsList) {
+            card.coll.enabled = true;
+        }
+    }
+
+    private void EndlessSuffering()
+    {
+        endless = true;
+
+        inGameCanvas.Won.SetActive(false);
+        EnableColliders();
+        gem.GetComponent<Collider2D>().enabled = true;
+        
+        Time.timeScale = 1f;
+        AudioManager.Instance.spatialBlend = 0f;
     }
 }
