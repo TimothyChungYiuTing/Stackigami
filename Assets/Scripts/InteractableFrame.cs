@@ -27,6 +27,10 @@ public class InteractableFrame : MonoBehaviour
     public GameObject ProgressBG;
     public List<int> PossibleRiftOutcomes;
     private bool riftUnlocked = false;
+    
+    [Header("Audio")]
+    public List<AudioClip> audioClips;
+    public AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start()
@@ -34,6 +38,7 @@ public class InteractableFrame : MonoBehaviour
         coll = GetComponent<Collider2D>();
         boardManager = FindObjectOfType<BoardManager>();
         Text_Words = transform.GetChild(0).GetComponent<TextMeshPro>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -54,6 +59,8 @@ public class InteractableFrame : MonoBehaviour
 
     public void OpenPack()
     {
+        audioSource.clip = audioClips[1];
+        audioSource.Play();
         coll.isTrigger = false;
         Invoke("CollTriggerTrue", 0.3f);
         if (interactMode == InteractMode.Incant) {

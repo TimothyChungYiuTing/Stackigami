@@ -83,11 +83,16 @@ public class Card : MonoBehaviour
     [Header("Coroutine Management")]
     public Coroutine lastCoroutine = null;
 
+    [Header("Audio")]
+    public List<AudioClip> audioClips;
+    private AudioSource audioSource;
+
     // Start is called before the first frame update    
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<BoxCollider2D>();
+        audioSource = GetComponent<AudioSource>();
 
         combiningRecipe = null;
         cardDataManager = FindObjectOfType<CardDataManager>();
@@ -833,6 +838,10 @@ public class Card : MonoBehaviour
     private void OnMouseDown()
     {
         if (draggable) {
+            audioSource.pitch = 1.0f;
+            audioSource.clip = audioClips[0];
+            audioSource.Play();
+
             transform.position += Vector3.up * 0.15f;
             dragStartPos = transform.position;
             dragStartMousePos = GetMousePos();
@@ -894,9 +903,15 @@ public class Card : MonoBehaviour
                 if (StackToClosestCollided()) {
                     isHost = false;
                     GetHost().RestackPosition();
+                    audioSource.pitch = 0.9f;
+                    audioSource.clip = audioClips[1];
+                    audioSource.Play();
                 }
                 else {
                     isHost = true;
+                    audioSource.pitch = 0.9f;
+                    audioSource.clip = audioClips[0];
+                    audioSource.Play();
                 }
 
                 isDragging = false;
@@ -996,22 +1011,28 @@ public class Card : MonoBehaviour
                 }
                 ResetCard();
 
+                bool sold = false;
+
                 //Sell all recorded sellable stacked cards
                 foreach(Card ToBeSold in ToBeSoldList) {
                     InstantiateMoney(ToBeSold);
                     ToBeSold.CardDestroy();
-                    if (boardManager.objectiveStage == 2) {
-                        boardManager.ProceedStage(3);
-                    }
+                    sold = true;
                 }
 
                 if (cardInfo.sellEffect != -1) {
                     //Check if current card is sellable, then sell it if true
                     InstantiateMoney(this);
                     CardDestroy();
+                    sold = true;
+                }
+
+                if (sold) {
                     if (boardManager.objectiveStage == 2) {
                         boardManager.ProceedStage(3);
                     }
+                    OverlappedFrame.audioSource.clip = OverlappedFrame.audioClips[0];
+                    OverlappedFrame.audioSource.Play();
                 }
             }
             

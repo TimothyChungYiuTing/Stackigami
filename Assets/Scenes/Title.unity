@@ -1637,7 +1637,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: de4cdd95422eabf4f8e8b2229eddd2c4, type: 3}
   - {fileID: 8300000, guid: c7955f64ab3a0e84ba36ba961acb4c5b, type: 3}
   - {fileID: 8300000, guid: 5dbd754e425ff3648a6246b12f2448c9, type: 3}
-  volume: 0.3
+  volume: 0.2
   multipliedVolume: 1
 --- !u!4 &1424084964
 Transform:

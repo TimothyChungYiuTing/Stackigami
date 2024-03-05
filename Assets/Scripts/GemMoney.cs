@@ -7,11 +7,15 @@ public class GemMoney : MonoBehaviour
     private bool canFly = false;
     private Gem gem;
     private Collider2D coll;
+    private SpriteRenderer spriteRenderer;
+    private AudioSource audioSource;
     // Start is called before the first frame update
     void Start()
     {
         gem = FindObjectOfType<Gem>();
         coll = GetComponent<Collider2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        audioSource = GetComponent<AudioSource>();
         Invoke("BecomeCanFly", 0.5f);
     }
 
@@ -32,7 +36,11 @@ public class GemMoney : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other) {
         if (other.gameObject.layer == LayerMask.NameToLayer("Gem")) {
             gem.Text_Amount.text = (int.Parse(gem.Text_Amount.text) + 1).ToString();
-            Destroy(gameObject);
+            coll.enabled = false;
+            spriteRenderer.enabled = false;
+            audioSource.pitch = 1.2f;
+            audioSource.Play();
+            Destroy(gameObject, 0.3f);
         }
     }
 }

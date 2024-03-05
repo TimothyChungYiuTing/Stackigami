@@ -46,6 +46,10 @@ public class BoardManager : MonoBehaviour
     public List<CardDataManager.RecipeData>[] UndiscoveredRecipes_Stage = new List<CardDataManager.RecipeData>[3];
     public List<CardDataManager.RecipeData> DiscoveredRecipes = new();
 
+    [Header("Recipe Management")]
+    public List<AudioClip> audioClips;
+    private AudioSource audioSource;
+
     public void ProceedStage(int objectiveStageIndex)
     {
         objectiveStage = objectiveStageIndex;
@@ -126,6 +130,7 @@ public class BoardManager : MonoBehaviour
     {
         gem = FindObjectOfType<Gem>();
         cardSpritesScript = FindObjectOfType<CardSprites>();
+        audioSource = GetComponent<AudioSource>();
 
         objectiveTexts = new() {
             "Objective:\tOpen an Incant Pack",
@@ -175,8 +180,9 @@ public class BoardManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space)) {
             List<int> uniqueIDs = new();
             List<List<Card>> ListOfSameIDCardLists = new();
+            bool hasChanged = false;
 
-            
+            //Organizes matching stacks
             foreach(Card card in existingCardsList) {
                 if (card.battleID == -1 && !card.inRift && !card.removed && card.stackable && card.prevCard == null && card.stackedCards.Count > 0) {
                     //Check if id does not exist, then Check if all children cards are same. If same, add all cards a single SameIDCardList to be added to ListOfSameIDCardLists
@@ -195,6 +201,7 @@ public class BoardManager : MonoBehaviour
                             uniqueIDs.Add(card.id);
                             ListOfSameIDCardLists.Add(newCardList);
                         } else {
+                            hasChanged = true;
                             //Add self and stackedCards to list
                             List<Card> newCardList = new() { card };
                             newCardList.AddRange(card.stackedCards);
@@ -209,6 +216,7 @@ public class BoardManager : MonoBehaviour
                 }
             }
 
+            //Organizes solo cards
             foreach(Card card in existingCardsList) {
                 //Get all cards that can be autostacked
                 if (card.battleID == -1 && !card.inRift && !card.removed && card.stackable && card.prevCard == null && card.stackedCards.Count == 0) {
@@ -220,6 +228,7 @@ public class BoardManager : MonoBehaviour
                     }
                     else {
                         //Add to list
+                        hasChanged = true;
                         for (int i=0; i<uniqueIDs.Count; i++) {
                             if (uniqueIDs[i] == card.id) {
                                 ListOfSameIDCardLists[i].Add(card);
@@ -229,7 +238,7 @@ public class BoardManager : MonoBehaviour
                 }
             }
 
-            //TODO: Auto stack these cards in the lists
+            //Auto stack these cards in the lists
             foreach (List<Card> SameIDCardList in ListOfSameIDCardLists) {
                 for(int i = 0; i < SameIDCardList.Count; i++) {
                     if (i == 0) {
@@ -240,10 +249,15 @@ public class BoardManager : MonoBehaviour
                         SameIDCardList[i].isHost = false;
                         SameIDCardList[i].prevCard = SameIDCardList[i-1];
                     }
-                    
+
                     if (i+1 < SameIDCardList.Count)
                         SameIDCardList[i].stackedCards = SameIDCardList.GetRange(i+1, SameIDCardList.Count - (i+1));
                 }
+            }
+
+            if (hasChanged) {
+                audioSource.clip = audioClips[0];
+                audioSource.Play();
             }
         }
     }

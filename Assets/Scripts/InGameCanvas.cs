@@ -28,10 +28,16 @@ public class InGameCanvas : MonoBehaviour
 
     [Header("Instantiated")]
     public GameObject recipePrefab;
+
+    [Header("Audio")]
+    public List<AudioClip> audioClips;
+    private AudioSource audioSource;
     
     // Start is called before the first frame update
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+
         ButtonOpen = new Vector3(-500, 0, 0);
         ButtonClose = new Vector3(-10, 0, 0);
         BoxOpen = new Vector3(0, 0, 0);
@@ -49,6 +55,9 @@ public class InGameCanvas : MonoBehaviour
 
     public void ToggleRecipes()
     {
+        audioSource.clip = audioClips[0];
+        audioSource.Play();
+
         opened = !opened;
         //Debug.Log("ToggleRecipes");
         StartCoroutine(MoveRecipeBox());
